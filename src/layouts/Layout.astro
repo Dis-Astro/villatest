@@ -1,0 +1,95 @@
+---
+import Header from '@/components/Header.astro';
+import Footer from '@/components/Footer.astro';
+import '../styles/global.css';
+
+export interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  locale: 'it' | 'en';
+  canonical?: string;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  image = '/images/og/og-home.jpg',
+  locale,
+  canonical,
+  noindex = false
+} = Astro.props;
+
+const canonicalUrl = canonical
+  ? `https://villaparis.rosetoabruzzo.it${canonical}`
+  : `https://villaparis.rosetoabruzzo.it${Astro.url.pathname}`;
+
+const altPath = locale === 'it'
+  ? `/en${Astro.url.pathname}`
+  : (Astro.url.pathname.replace('/en', '') || '/');
+const defaultPath = locale === 'en'
+  ? (Astro.url.pathname.replace('/en', '') || '/')
+  : Astro.url.pathname;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "Villa Paris",
+  "description": description,
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Via Acquaviva, 11",
+    "addressLocality": "Roseto degli Abruzzi",
+    "addressRegion": "TE",
+    "postalCode": "64026",
+    "addressCountry": "IT"
+  },
+  "telephone": "+39 085 8937706",
+  "email": "info@villaparis.it",
+  "url": "https://villaparis.rosetoabruzzo.it",
+  "image": `https://villaparis.rosetoabruzzo.it${image}`
+};
+---
+
+<!DOCTYPE html>
+<html lang={locale}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+
+  <link rel="canonical" href={canonicalUrl} />
+  <link rel="alternate" hreflang={locale === 'it' ? 'en' : 'it'} href={`https://villaparis.rosetoabruzzo.it${altPath}`} />
+  <link rel="alternate" hreflang="x-default" href={`https://villaparis.rosetoabruzzo.it${defaultPath}`} />
+
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={`https://villaparis.rosetoabruzzo.it${image}`} />
+  <meta property="og:url" content={canonicalUrl} />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content={locale === 'it' ? 'it_IT' : 'en_US'} />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={`https://villaparis.rosetoabruzzo.it${image}`} />
+
+  {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+</head>
+<body>
+  <div class="flex flex-col min-h-screen">
+    <Header locale={locale} />
+    <main class="flex-1">
+      <slot />
+    </main>
+    <Footer locale={locale} />
+  </div>
+</body>
+</html>

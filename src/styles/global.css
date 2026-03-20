@@ -1,0 +1,199 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Lato:wght@300;400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Villa Paris Design System ── */
+
+@layer base {
+  :root {
+    /* Background & Foreground */
+    --background: 40 20% 98%;
+    --foreground: 150 30% 20%;
+
+    /* Card */
+    --card: 0 0% 100%;
+    --card-foreground: 150 30% 20%;
+
+    /* Popover */
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 30% 20%;
+
+    /* Forest green — signature */
+    --primary: 147 50% 30%;
+    --primary-foreground: 40 20% 98%;
+
+    /* Warm cream */
+    --secondary: 40 30% 95%;
+    --secondary-foreground: 150 30% 20%;
+
+    /* Muted sage */
+    --muted: 150 15% 90%;
+    --muted-foreground: 150 15% 45%;
+
+    /* Gold accent */
+    --accent: 43 65% 55%;
+    --accent-foreground: 40 20% 10%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 150 15% 85%;
+    --input: 150 15% 85%;
+    --ring: 147 50% 30%;
+    --radius: 0.25rem;
+
+    /* Custom */
+    --gradient-hero-overlay: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(43, 65%, 55%) 0%, hsl(38, 70%, 45%) 100%);
+    --shadow-elegant: 0 4px 20px -4px rgba(46, 80, 60, 0.15);
+    --shadow-card: 0 10px 40px -10px rgba(46, 80, 60, 0.2);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    @apply font-body antialiased;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  /* Buttons */
+  .btn-elegant {
+    @apply inline-block px-8 py-3 border-2 uppercase text-sm font-medium transition-all duration-300;
+    border-color: hsl(var(--primary));
+    color: hsl(var(--primary));
+    letter-spacing: 0.2em;
+  }
+  .btn-elegant:hover {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+
+  .btn-primary {
+    @apply inline-block px-8 py-3 text-sm font-medium transition-all duration-300 uppercase;
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    letter-spacing: 0.15em;
+  }
+  .btn-primary:hover {
+    background-color: hsl(147, 50%, 25%);
+  }
+
+  .btn-secondary {
+    @apply inline-block px-8 py-3 text-sm font-medium transition-all duration-300;
+    background-color: hsl(var(--secondary));
+    color: hsl(var(--secondary-foreground));
+  }
+  .btn-secondary:hover {
+    background-color: hsl(40, 30%, 90%);
+  }
+
+  /* Container */
+  .container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Section spacing */
+  .section-padding {
+    @apply py-20 lg:py-32;
+  }
+
+  /* Navigation */
+  .nav-link {
+    @apply relative uppercase text-xs font-medium transition-colors duration-300;
+    letter-spacing: 0.25em;
+    color: hsl(var(--foreground) / 0.7);
+  }
+  .nav-link:hover {
+    color: hsl(var(--accent));
+  }
+  .nav-link::after {
+    content: '';
+    @apply absolute left-0 bottom-0 w-0 transition-all duration-300;
+    height: 1px;
+    background-color: hsl(var(--accent));
+  }
+  .nav-link:hover::after,
+  .nav-link.active::after {
+    @apply w-full;
+  }
+  .nav-link.active {
+    color: hsl(var(--accent));
+  }
+
+  /* Section title */
+  .section-title {
+    @apply font-display text-3xl md:text-4xl lg:text-5xl font-light tracking-wide;
+    color: hsl(var(--foreground));
+  }
+
+  /* Location card */
+  .location-card {
+    @apply relative overflow-hidden cursor-pointer;
+  }
+  .location-card img {
+    @apply transition-transform duration-700;
+  }
+  .location-card:hover img {
+    @apply scale-105;
+  }
+  .location-card-overlay {
+    @apply absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 transition-opacity duration-500;
+  }
+  .location-card:hover .location-card-overlay {
+    @apply opacity-100;
+  }
+
+  /* Decorative line */
+  .line-accent {
+    width: 5rem;
+    height: 1px;
+    background-color: hsl(var(--accent));
+  }
+
+  /* Dotted background pattern */
+  .bg-dotted {
+    background-image: radial-gradient(circle at 1px 1px, hsl(var(--primary) / 0.06) 1px, transparent 0);
+    background-size: 40px 40px;
+  }
+}
+
+/* No-JS fallbacks */
+.no-js .js-only {
+  display: none !important;
+}
+.js-only {
+  display: block;
+}
+
+/* Focus states for accessibility */
+*:focus-visible {
+  outline: 2px solid hsl(var(--accent));
+  outline-offset: 2px;
+}
+
+/* Text shadow utility */
+.text-shadow-elegant {
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

@@ -1,0 +1,9 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#FDF2F8"/>
+  <rect x="0" y="0" width="1200" height="315" fill="#EC4899" opacity="0.2"/>
+  <rect x="300" y="157" width="600" height="315" fill="#BE185D" opacity="0.2"/>
+  <circle cx="600" cy="315" r="100" fill="#831843" opacity="0.3"/>
+  <text x="600" y="280" font-family="serif" font-size="64" font-weight="bold" text-anchor="middle" fill="#831843">Matrimoni</text>
+  <text x="600" y="340" font-family="serif" font-size="32" text-anchor="middle" fill="#BE185D">Villa Paris</text>
+  <text x="600" y="380" font-family="serif" font-size="24" text-anchor="middle" fill="#EC4899">Roseto degli Abruzzi</text>
+</svg>

@@ -1,0 +1,100 @@
+---
+import { globalSettings } from '@/content/settings';
+
+export interface Props {
+  locale: 'it' | 'en';
+}
+
+const { locale } = Astro.props;
+const settings = globalSettings;
+const navigation = locale === 'it' ? settings.navigation.it : settings.navigation.en;
+const year = new Date().getFullYear();
+
+const labels = locale === 'it'
+  ? { quickLinks: 'Link Rapidi', contacts: 'Contatti', followUs: 'Seguici', rights: 'Tutti i diritti riservati.', privacy: 'Privacy Policy', cookie: 'Cookie Policy' }
+  : { quickLinks: 'Quick Links', contacts: 'Contacts', followUs: 'Follow Us', rights: 'All rights reserved.', privacy: 'Privacy Policy', cookie: 'Cookie Policy' };
+---
+
+<footer class="bg-foreground text-primary-foreground/80">
+  <div class="container mx-auto px-4">
+    <!-- Main footer -->
+    <div class="py-16 lg:py-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+
+      <!-- Brand -->
+      <div class="lg:col-span-1">
+        <a href={locale === 'it' ? '/' : '/en'} class="inline-flex items-center gap-3 mb-6">
+          <div class="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
+            <span class="font-display text-base text-accent">VP</span>
+          </div>
+          <span class="font-display text-xl text-white">Villa Paris</span>
+        </a>
+        <p class="text-sm leading-relaxed text-white/50 max-w-xs">
+          {locale === 'it'
+            ? 'Location esclusiva per matrimoni ed eventi a Roseto degli Abruzzi, nel cuore della costa adriatica.'
+            : 'Exclusive venue for weddings and events in Roseto degli Abruzzi, in the heart of the Adriatic coast.'}
+        </p>
+      </div>
+
+      <!-- Quick links -->
+      <div>
+        <h3 class="text-xs uppercase tracking-[0.25em] text-accent mb-6 font-medium">{labels.quickLinks}</h3>
+        <ul class="space-y-3">
+          {navigation.map((item) => (
+            <li>
+              <a href={item.href} class="text-sm text-white/50 hover:text-accent transition-colors duration-300">
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Contacts -->
+      <div>
+        <h3 class="text-xs uppercase tracking-[0.25em] text-accent mb-6 font-medium">{labels.contacts}</h3>
+        <ul class="space-y-4 text-sm">
+          <li class="flex items-start gap-3">
+            <svg class="w-4 h-4 mt-0.5 text-accent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span class="text-white/50">Via Acquaviva, 11<br/>64026 Roseto degli Abruzzi (TE)</span>
+          </li>
+          <li>
+            <a href="tel:+390858937706" class="flex items-center gap-3 text-white/50 hover:text-accent transition-colors">
+              <svg class="w-4 h-4 text-accent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              <span>+39 085 8937706</span>
+            </a>
+          </li>
+          <li>
+            <a href="mailto:info@villaparis.it" class="flex items-center gap-3 text-white/50 hover:text-accent transition-colors">
+              <svg class="w-4 h-4 text-accent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              <span>info@villaparis.it</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Social -->
+      <div>
+        <h3 class="text-xs uppercase tracking-[0.25em] text-accent mb-6 font-medium">{labels.followUs}</h3>
+        <div class="flex gap-4">
+          <a href="https://www.instagram.com/villaparis_roseto/" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/50 hover:bg-accent/20 hover:text-accent transition-all duration-300" aria-label="Instagram">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="https://www.facebook.com/villaparisroseto/" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/50 hover:bg-accent/20 hover:text-accent transition-all duration-300" aria-label="Facebook">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="border-t border-white/10 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p class="text-xs text-white/30">
+        &copy; {year} Villa Paris. {labels.rights}
+      </p>
+      <div class="flex gap-6">
+        <a href="#" class="text-xs text-white/30 hover:text-accent transition-colors">{labels.privacy}</a>
+        <a href="#" class="text-xs text-white/30 hover:text-accent transition-colors">{labels.cookie}</a>
+      </div>
+    </div>
+  </div>
+</footer>

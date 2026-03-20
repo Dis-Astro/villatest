@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /_astro/
+Disallow: /api/
+
+Sitemap: https://villaparis.rosetoabruzzo.it/sitemap-index.xml

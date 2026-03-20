@@ -1,0 +1,48 @@
+---
+import Layout from '@/layouts/Layout.astro';
+---
+
+<Layout
+  title="Thank You - Villa Paris"
+  description="Message sent successfully. We will contact you soon."
+  locale="en"
+  noindex={true}
+>
+  <section class="section-padding bg-dotted min-h-screen flex items-center pt-32">
+    <div class="container mx-auto px-4">
+      <div class="max-w-2xl mx-auto text-center">
+        <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-8" style="background:hsl(var(--accent)/0.15)">
+          <svg class="w-7 h-7 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+
+        <h1 class="font-display text-3xl md:text-4xl font-light tracking-wide mb-4">Thank You for Your Message</h1>
+        <p class="text-muted-foreground font-body text-lg mb-10 leading-relaxed">
+          We have received your request and will contact you soon to provide all the information you need.
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+          <a href="/en" class="btn-primary">Back to Home</a>
+          <a href="/en/gallery" class="btn-elegant">Discover the Gallery</a>
+        </div>
+
+        <div class="bg-card p-8 rounded-sm border border-border/50 text-left" style="box-shadow:var(--shadow-card)">
+          <h2 class="font-display text-xl mb-6 text-center">What Happens Next?</h2>
+          <div class="space-y-4">
+            <div class="flex items-start gap-4">
+              <span class="font-display text-2xl text-accent leading-none">1.</span>
+              <p class="text-muted-foreground font-body text-sm">You will receive an email confirmation within 24 hours.</p>
+            </div>
+            <div class="flex items-start gap-4">
+              <span class="font-display text-2xl text-accent leading-none">2.</span>
+              <p class="text-muted-foreground font-body text-sm">Our team will review your request.</p>
+            </div>
+            <div class="flex items-start gap-4">
+              <span class="font-display text-2xl text-accent leading-none">3.</span>
+              <p class="text-muted-foreground font-body text-sm">We will contact you to schedule an appointment or visit.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

@@ -1,0 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Lato:wght@300;400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Villa Paris elegant color palette */
+    --background: 40 20% 98%;
+    --foreground: 150 30% 20%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 150 30% 20%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 30% 20%;
+
+    /* Forest green - signature color */
+    --primary: 147 50% 30%;
+    --primary-foreground: 40 20% 98%;
+
+    /* Warm cream/beige */
+    --secondary: 40 30% 95%;
+    --secondary-foreground: 150 30% 20%;
+
+    /* Muted sage */
+    --muted: 150 15% 90%;
+    --muted-foreground: 150 15% 45%;
+
+    /* Gold accent */
+    --accent: 43 65% 55%;
+    --accent-foreground: 40 20% 10%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 150 15% 85%;
+    --input: 150 15% 85%;
+    --ring: 147 50% 30%;
+
+    --radius: 0.25rem;
+
+    /* Custom gradients */
+    --gradient-hero-overlay: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(43, 65%, 55%) 0%, hsl(38, 70%, 45%) 100%);
+
+    /* Shadows */
+    --shadow-elegant: 0 4px 20px -4px rgba(46, 80, 60, 0.15);
+    --shadow-card: 0 10px 40px -10px rgba(46, 80, 60, 0.2);
+
+    /* Sidebar colors */
+    --sidebar-background: 40 20% 98%;
+    --sidebar-foreground: 150 30% 20%;
+    --sidebar-primary: 147 50% 30%;
+    --sidebar-primary-foreground: 40 20% 98%;
+    --sidebar-accent: 40 30% 95%;
+    --sidebar-accent-foreground: 150 30% 20%;
+    --sidebar-border: 150 15% 85%;
+    --sidebar-ring: 147 50% 30%;
+  }
+
+  .dark {
+    --background: 150 30% 8%;
+    --foreground: 40 20% 95%;
+
+    --card: 150 30% 12%;
+    --card-foreground: 40 20% 95%;
+
+    --popover: 150 30% 12%;
+    --popover-foreground: 40 20% 95%;
+
+    --primary: 147 45% 45%;
+    --primary-foreground: 40 20% 98%;
+
+    --secondary: 150 20% 18%;
+    --secondary-foreground: 40 20% 95%;
+
+    --muted: 150 20% 18%;
+    --muted-foreground: 150 15% 65%;
+
+    --accent: 43 55% 50%;
+    --accent-foreground: 40 20% 10%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 150 20% 20%;
+    --input: 150 20% 20%;
+    --ring: 147 45% 45%;
+
+    --sidebar-background: 150 30% 10%;
+    --sidebar-foreground: 40 20% 95%;
+    --sidebar-primary: 147 45% 45%;
+    --sidebar-primary-foreground: 40 20% 98%;
+    --sidebar-accent: 150 20% 18%;
+    --sidebar-accent-foreground: 40 20% 95%;
+    --sidebar-border: 150 20% 20%;
+    --sidebar-ring: 147 45% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  .nav-link {
+    @apply relative text-foreground/80 hover:text-primary transition-colors duration-300 uppercase tracking-widest text-xs font-medium;
+  }
+
+  .nav-link::after {
+    @apply content-[''] absolute left-0 bottom-0 w-0 h-[2px] bg-primary transition-all duration-300;
+  }
+
+  .nav-link:hover::after,
+  .nav-link.active::after {
+    @apply w-full;
+  }
+
+  .nav-link.active {
+    @apply text-primary-foreground bg-primary;
+  }
+
+  .btn-elegant {
+    @apply inline-block px-8 py-3 border-2 border-primary text-primary uppercase tracking-[0.2em] text-sm font-medium transition-all duration-300 hover:bg-primary hover:text-primary-foreground;
+  }
+
+  .section-title {
+    @apply font-display text-3xl md:text-4xl lg:text-5xl text-muted-foreground font-light tracking-wide;
+  }
+
+  .service-item {
+    @apply py-4 border-b border-border flex items-start gap-4 transition-colors hover:bg-muted/30;
+  }
+
+  .location-card {
+    @apply relative overflow-hidden cursor-pointer;
+  }
+
+  .location-card img {
+    @apply transition-transform duration-700;
+  }
+
+  .location-card:hover img {
+    @apply scale-105;
+  }
+
+  .location-card-overlay {
+    @apply absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 transition-opacity duration-500;
+  }
+
+  .location-card:hover .location-card-overlay {
+    @apply opacity-100;
+  }
+}
+
+@layer utilities {
+  .text-shadow-elegant {
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+  }
+}

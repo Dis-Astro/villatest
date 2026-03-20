@@ -1,0 +1,165 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { pages } from '@/content/pages';
+import { globalSettings } from '@/content/settings';
+
+const p = pages.home.en;
+const settings = globalSettings;
+const introSection = p.sections?.find(s => s.type === 'intro');
+const servicesSection = p.sections?.find(s => s.type === 'services');
+const gallerySection = p.sections?.find(s => s.type === 'gallery');
+---
+
+<Layout
+  title={p.seo.title}
+  description={p.seo.description}
+  image={p.seo.image}
+  locale="en"
+>
+  <!-- ═══ HERO ═══ -->
+  <section class="relative h-screen flex items-center justify-center overflow-hidden">
+    <div class="absolute inset-0">
+      <img src={p.hero.image} alt={p.hero.title} class="w-full h-full object-cover" loading="eager" />
+      <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-black/30 to-black/50"></div>
+    </div>
+    <div class="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
+      <div class="line-accent mx-auto mb-8 opacity-80"></div>
+      <h1 class="font-display text-5xl md:text-7xl lg:text-8xl font-light tracking-wide mb-4 text-shadow-elegant">{p.hero.title}</h1>
+      {p.hero.subtitle && <p class="text-sm md:text-base uppercase tracking-[0.35em] text-white/80 mb-6 font-body font-light">{p.hero.subtitle}</p>}
+      {p.hero.description && <p class="text-lg md:text-xl font-body font-light text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed">{p.hero.description}</p>}
+      {p.hero.cta && <a href={p.hero.cta.href} class="btn-elegant border-white/60 text-white hover:bg-white hover:text-foreground">{p.hero.cta.text}</a>}
+    </div>
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/50">
+      <div class="w-5 h-8 border border-white/30 rounded-full flex justify-center pt-1.5">
+        <div class="w-1 h-2 bg-white/60 rounded-full animate-bounce"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ INTRO ═══ -->
+  {introSection && (
+    <section id="intro" class="section-padding bg-dotted">
+      <div class="container mx-auto px-4">
+        <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+          <div>
+            <div class="line-accent mb-6"></div>
+            <h2 class="section-title mb-6">{introSection.title}</h2>
+            <p class="text-lg leading-relaxed text-muted-foreground mb-8 font-body">{introSection.description}</p>
+            <a href={settings.cta.en.href} class="btn-elegant">{settings.cta.en.text}</a>
+          </div>
+          <div class="relative">
+            {introSection.images?.[0] && (
+              <div class="relative overflow-hidden rounded-sm shadow-xl">
+                <img src={introSection.images[0]} alt={introSection.title || 'Villa Paris'} class="w-full h-[400px] lg:h-[500px] object-cover" loading="lazy" />
+              </div>
+            )}
+            <div class="absolute -bottom-4 -left-4 w-24 h-24 border-2 border-accent/30 rounded-sm -z-10"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ═══ LOCATION GALLERY ═══ -->
+  <section class="section-padding bg-secondary">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16">
+        <div class="line-accent mx-auto mb-6"></div>
+        <h2 class="section-title mb-4">Our Spaces</h2>
+        <p class="text-muted-foreground font-body max-w-2xl mx-auto">Discover the unique environments of Villa Paris, where every corner tells a story of elegance and tradition.</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="location-card group rounded-sm overflow-hidden">
+          <img src="/images/spaces/villa-paris-estate.webp" alt="Villa Paris Estate" class="w-full h-80 object-cover" loading="lazy" />
+          <div class="location-card-overlay flex items-end p-6">
+            <div><h3 class="text-white font-display text-xl mb-1">The Estate</h3><p class="text-white/70 text-sm font-body">Elegance surrounded by nature</p></div>
+          </div>
+        </div>
+        <div class="location-card group rounded-sm overflow-hidden">
+          <img src="/images/spaces/villa-paris-giardino.webp" alt="Villa Paris Garden" class="w-full h-80 object-cover" loading="lazy" />
+          <div class="location-card-overlay flex items-end p-6">
+            <div><h3 class="text-white font-display text-xl mb-1">The Garden</h3><p class="text-white/70 text-sm font-body">Ceremonies under the stars</p></div>
+          </div>
+        </div>
+        <div class="location-card group rounded-sm overflow-hidden">
+          <img src="/images/spaces/villa-paris-sala.webp" alt="Villa Paris Hall" class="w-full h-80 object-cover" loading="lazy" />
+          <div class="location-card-overlay flex items-end p-6">
+            <div><h3 class="text-white font-display text-xl mb-1">The Hall</h3><p class="text-white/70 text-sm font-body">Unforgettable receptions</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SERVICES ═══ -->
+  {servicesSection && (
+    <section class="section-padding bg-dotted">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+          <div class="line-accent mx-auto mb-6"></div>
+          <h2 class="section-title mb-4">{servicesSection.title}</h2>
+          <p class="text-muted-foreground font-body max-w-2xl mx-auto">{servicesSection.description}</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div class="text-center p-8 bg-card rounded-sm border border-border/50 hover:shadow-lg transition-shadow duration-500">
+            <div class="w-14 h-14 mx-auto mb-6 rounded-full flex items-center justify-center" style="background:hsl(var(--accent)/0.15)">
+              <svg class="w-6 h-6 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </div>
+            <h3 class="font-display text-xl mb-3">Weddings</h3>
+            <p class="text-muted-foreground text-sm font-body leading-relaxed">The perfect setting for the most beautiful day of your life.</p>
+          </div>
+          <div class="text-center p-8 bg-card rounded-sm border border-border/50 hover:shadow-lg transition-shadow duration-500">
+            <div class="w-14 h-14 mx-auto mb-6 rounded-full flex items-center justify-center" style="background:hsl(var(--accent)/0.15)">
+              <svg class="w-6 h-6 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <h3 class="font-display text-xl mb-3">Private Events</h3>
+            <p class="text-muted-foreground text-sm font-body leading-relaxed">Exclusive celebrations in an elegant and private setting.</p>
+          </div>
+          <div class="text-center p-8 bg-card rounded-sm border border-border/50 hover:shadow-lg transition-shadow duration-500">
+            <div class="w-14 h-14 mx-auto mb-6 rounded-full flex items-center justify-center" style="background:hsl(var(--accent)/0.15)">
+              <svg class="w-6 h-6 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            </div>
+            <h3 class="font-display text-xl mb-3">Corporate Events</h3>
+            <p class="text-muted-foreground text-sm font-body leading-relaxed">Refined environments for meetings, galas and corporate conferences.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ═══ GALLERY PREVIEW ═══ -->
+  {gallerySection && (
+    <section class="section-padding bg-secondary">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+          <div class="line-accent mx-auto mb-6"></div>
+          <h2 class="section-title mb-4">{gallerySection.title}</h2>
+          <p class="text-muted-foreground font-body max-w-2xl mx-auto">{gallerySection.description}</p>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
+          {gallerySection.images?.slice(0, 6).map((img, i) => (
+            <div class="location-card group rounded-sm overflow-hidden aspect-square">
+              <img src={img} alt={`Villa Paris ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
+              <div class="location-card-overlay"></div>
+            </div>
+          ))}
+        </div>
+        <div class="text-center mt-12">
+          <a href="/en/gallery" class="btn-elegant">View full gallery</a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ═══ CTA ═══ -->
+  <section class="relative py-24 lg:py-32 overflow-hidden">
+    <div class="absolute inset-0 bg-primary"></div>
+    <div class="absolute inset-0 bg-dotted opacity-10"></div>
+    <div class="relative z-10 container mx-auto px-4 text-center">
+      <div class="line-accent mx-auto mb-8" style="background-color:hsl(var(--accent))"></div>
+      <h2 class="font-display text-3xl md:text-4xl lg:text-5xl text-white font-light tracking-wide mb-6">Let Us Make Your Dream Come True</h2>
+      <p class="text-white/70 font-body text-lg max-w-2xl mx-auto mb-10 leading-relaxed">Every event at Villa Paris is a unique experience, crafted down to the finest detail to exceed every expectation.</p>
+      <a href="/en/contacts" class="btn-elegant border-white/60 text-white hover:bg-white hover:text-primary">Contact Us</a>
+    </div>
+  </section>
+</Layout>

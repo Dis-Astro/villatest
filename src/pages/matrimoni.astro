@@ -1,0 +1,161 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { pages } from '@/content/pages';
+import { globalSettings } from '@/content/settings';
+
+const p = pages.weddings.it;
+const settings = globalSettings;
+const introSection = p.sections?.find(s => s.type === 'intro');
+---
+
+<Layout
+  title={p.seo.title}
+  description={p.seo.description}
+  image={p.seo.image}
+  locale="it"
+>
+  <!-- ═══ HERO ═══ -->
+  <section class="relative h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden">
+    <div class="absolute inset-0">
+      <img
+        src={p.hero.image}
+        alt={p.hero.title}
+        class="w-full h-full object-cover"
+        loading="eager"
+      />
+      <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-black/30 to-black/50"></div>
+    </div>
+    <div class="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
+      <div class="line-accent mx-auto mb-8 opacity-80"></div>
+      <h1 class="font-display text-4xl md:text-6xl lg:text-7xl font-light tracking-wide mb-4 text-shadow-elegant">
+        {p.hero.title}
+      </h1>
+      {p.hero.subtitle && (
+        <p class="text-sm md:text-base uppercase tracking-[0.35em] text-white/80 mb-6 font-body font-light">
+          {p.hero.subtitle}
+        </p>
+      )}
+      {p.hero.description && (
+        <p class="text-lg md:text-xl font-body font-light text-white/70 max-w-2xl mx-auto leading-relaxed">
+          {p.hero.description}
+        </p>
+      )}
+    </div>
+  </section>
+
+  <!-- ═══ INTRO ═══ -->
+  {introSection && (
+    <section class="section-padding bg-dotted">
+      <div class="container mx-auto px-4">
+        <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+          <div>
+            <div class="line-accent mb-6"></div>
+            <h2 class="section-title mb-6">{introSection.title}</h2>
+            <p class="text-lg leading-relaxed text-muted-foreground mb-8 font-body">
+              {introSection.description}
+            </p>
+
+            <div class="space-y-6 mb-10">
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style="background:hsl(var(--accent)/0.15)">
+                  <svg class="w-5 h-5 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div>
+                  <h3 class="font-display text-lg mb-1">Giardini Incantevoli</h3>
+                  <p class="text-muted-foreground text-sm font-body">Spazi verdi perfetti per cerimonie all'aperto e aperitivi.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style="background:hsl(var(--accent)/0.15)">
+                  <svg class="w-5 h-5 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </div>
+                <div>
+                  <h3 class="font-display text-lg mb-1">Sale Eleganti</h3>
+                  <p class="text-muted-foreground text-sm font-body">Ambienti raffinati per ricevimenti indimenticabili.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style="background:hsl(var(--accent)/0.15)">
+                  <svg class="w-5 h-5 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+                </div>
+                <div>
+                  <h3 class="font-display text-lg mb-1">Cucina d'Eccellenza</h3>
+                  <p class="text-muted-foreground text-sm font-body">Menu personalizzati con ingredienti di alta qualità.</p>
+                </div>
+              </div>
+            </div>
+
+            <a href={settings.cta.it.href} class="btn-elegant">
+              {settings.cta.it.text}
+            </a>
+          </div>
+          <div class="space-y-4">
+            {introSection.images?.map((image, index) => (
+              <div class="overflow-hidden rounded-sm">
+                <img
+                  src={image}
+                  alt={`Matrimonio Villa Paris ${index + 1}`}
+                  class="w-full h-48 lg:h-56 object-cover hover:scale-105 transition-transform duration-700"
+                  loading="lazy"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ═══ EXPERIENCE ═══ -->
+  <section class="section-padding bg-secondary">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16">
+        <div class="line-accent mx-auto mb-6"></div>
+        <h2 class="section-title mb-4">L'Esperienza Villa Paris</h2>
+        <p class="text-muted-foreground font-body max-w-2xl mx-auto">
+          Ogni matrimonio è unico. Il nostro team vi accompagnerà in ogni fase della pianificazione.
+        </p>
+      </div>
+      <div class="grid md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+        <div class="text-center p-6">
+          <div class="text-4xl font-display text-accent mb-3">01</div>
+          <h3 class="font-display text-lg mb-2">Consulenza</h3>
+          <p class="text-muted-foreground text-sm font-body">Incontro personalizzato per conoscere i vostri desideri.</p>
+        </div>
+        <div class="text-center p-6">
+          <div class="text-4xl font-display text-accent mb-3">02</div>
+          <h3 class="font-display text-lg mb-2">Progettazione</h3>
+          <p class="text-muted-foreground text-sm font-body">Definizione di ogni dettaglio dell'allestimento.</p>
+        </div>
+        <div class="text-center p-6">
+          <div class="text-4xl font-display text-accent mb-3">03</div>
+          <h3 class="font-display text-lg mb-2">Coordinamento</h3>
+          <p class="text-muted-foreground text-sm font-body">Gestione completa del giorno dell'evento.</p>
+        </div>
+        <div class="text-center p-6">
+          <div class="text-4xl font-display text-accent mb-3">04</div>
+          <h3 class="font-display text-lg mb-2">Celebrazione</h3>
+          <p class="text-muted-foreground text-sm font-body">Il vostro giorno perfetto, senza pensieri.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CTA ═══ -->
+  <section class="relative py-24 lg:py-32 overflow-hidden">
+    <div class="absolute inset-0 bg-primary"></div>
+    <div class="absolute inset-0 bg-dotted opacity-10"></div>
+    <div class="relative z-10 container mx-auto px-4 text-center">
+      <div class="line-accent mx-auto mb-8" style="background-color:hsl(var(--accent))"></div>
+      <h2 class="font-display text-3xl md:text-4xl lg:text-5xl text-white font-light tracking-wide mb-6">
+        Inizia a Pianificare il Tuo Matrimonio
+      </h2>
+      <p class="text-white/70 font-body text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+        Contattaci per scoprire come Villa Paris può rendere il tuo giorno unico e indimenticabile.
+      </p>
+      <a href="/contatti" class="btn-elegant border-white/60 text-white hover:bg-white hover:text-primary">
+        Richiedi Informazioni
+      </a>
+    </div>
+  </section>
+</Layout>
