@@ -172,13 +172,14 @@ export default function Dashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Link
-                to="/"
+              <a
+                href="/"
                 target="_blank"
+                rel="noopener noreferrer"
                 className="block text-sm text-primary hover:underline"
               >
                 → Visualizza il sito
-              </Link>
+              </a>
               <Link
                 to="/admin/gallery"
                 className="block text-sm text-primary hover:underline"
@@ -202,17 +203,18 @@ export default function Dashboard() {
               Gestione Villa Paris
             </CardTitle>
             <CardDescription>
-              Da qui puoi gestire tutte le immagini del sito e configurare le email
+              Da qui puoi gestire le immagini del sito pubblico e configurare l'invio email dal form contatti.
             </CardDescription>
           </CardHeader>
           <CardContent className="prose prose-sm max-w-none text-muted-foreground">
             <p>
-              <strong>Galleria Foto:</strong> Carica nuove immagini, riordinale
-              con drag & drop e modifica didascalie.
+              <strong>Galleria Foto:</strong> Carica nuove immagini per sezione (hero, location, eventi),
+              riordinale con drag &amp; drop e modifica didascalie. Le immagini vengono mostrate
+              automaticamente nel sito pubblico.
             </p>
             <p>
               <strong>Configurazione SMTP:</strong> Imposta il server email per
-              l'invio di comunicazioni ai clienti.
+              ricevere i messaggi dal form contatti del sito.
             </p>
           </CardContent>
         </Card>

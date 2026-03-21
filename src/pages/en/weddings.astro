@@ -10,8 +10,8 @@ const introSection = p.sections?.find(s => s.type === 'intro');
 
 <Layout title={p.seo.title} description={p.seo.description} image={p.seo.image} locale="en">
   <!-- ═══ HERO ═══ -->
-  <section class="relative h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden">
-    <div class="absolute inset-0">
+  <section class="relative h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden" data-dynamic-slider="events-ricorrenze">
+    <div class="absolute inset-0" data-hero-images>
       <img src={p.hero.image} alt={p.hero.title} class="w-full h-full object-cover" loading="eager" />
       <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-black/30 to-black/50"></div>
     </div>
@@ -66,7 +66,7 @@ const introSection = p.sections?.find(s => s.type === 'intro');
           <div class="space-y-4">
             {introSection.images?.map((image, index) => (
               <div class="overflow-hidden rounded-sm">
-                <img src={image} alt={`Wedding at Villa Paris ${index + 1}`} class="w-full h-48 lg:h-56 object-cover hover:scale-105 transition-transform duration-700" loading="lazy" />
+                <img src={image} alt={`Wedding at Villa Paris ${index + 1}`} class="w-full h-48 lg:h-56 object-cover hover:scale-105 transition-transform duration-700" loading="lazy" data-dynamic-img={index === 0 ? 'location-exterior' : index === 1 ? 'location-cuisine' : 'location-interior'} />
               </div>
             ))}
           </div>

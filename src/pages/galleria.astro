@@ -18,8 +18,8 @@ const filteredItems = currentTag
   locale="it"
 >
   <!-- ═══ HERO ═══ -->
-  <section class="relative h-[50vh] min-h-[400px] flex items-center justify-center overflow-hidden">
-    <div class="absolute inset-0">
+  <section class="relative h-[50vh] min-h-[400px] flex items-center justify-center overflow-hidden" data-dynamic-slider="hero">
+    <div class="absolute inset-0" data-hero-images>
       <img
         src={p.hero.image}
         alt={p.hero.title}
@@ -41,49 +41,11 @@ const filteredItems = currentTag
     </div>
   </section>
 
-  <!-- ═══ FILTER TAGS ═══ -->
-  <section class="py-10 bg-secondary border-b border-border/50">
-    <div class="container mx-auto px-4">
-      <div class="flex flex-wrap justify-center gap-3">
-        <a
-          href="/galleria"
-          class:list={[
-            'px-5 py-2 text-xs uppercase tracking-[0.2em] font-medium rounded-sm border transition-all duration-300',
-            !currentTag
-              ? 'bg-primary text-primary-foreground border-primary'
-              : 'bg-transparent text-foreground/60 border-border hover:border-accent hover:text-accent'
-          ]}
-        >
-          Tutti
-        </a>
-        {tags.map((tag) => (
-          <a
-            href={`/galleria?tag=${tag}`}
-            class:list={[
-              'px-5 py-2 text-xs uppercase tracking-[0.2em] font-medium rounded-sm border transition-all duration-300',
-              currentTag === tag
-                ? 'bg-primary text-primary-foreground border-primary'
-                : 'bg-transparent text-foreground/60 border-border hover:border-accent hover:text-accent'
-            ]}
-          >
-            {tag.charAt(0).toUpperCase() + tag.slice(1)}
-          </a>
-        ))}
-      </div>
-      {currentTag && (
-        <div class="text-center mt-4">
-          <p class="text-sm text-muted-foreground font-body">
-            Filtrando per: <strong class="text-accent">{currentTag}</strong> ({filteredItems.length} immagini)
-          </p>
-        </div>
-      )}
-    </div>
-  </section>
-
   <!-- ═══ GALLERY GRID ═══ -->
   <section class="section-padding bg-dotted">
     <div class="container mx-auto px-4">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+      <!-- Griglia dinamica: se ci sono immagini in Supabase, sostituisce i fallback statici -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" data-dynamic-gallery="all">
         {filteredItems.map((item) => (
           <div class="location-card group rounded-sm overflow-hidden bg-muted">
             <img

@@ -15,8 +15,8 @@ const introSection = p.sections?.find(s => s.type === 'intro');
   locale="it"
 >
   <!-- ═══ HERO ═══ -->
-  <section class="relative h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden">
-    <div class="absolute inset-0">
+  <section class="relative h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden" data-dynamic-slider="events-ricorrenze">
+    <div class="absolute inset-0" data-hero-images>
       <img
         src={p.hero.image}
         alt={p.hero.title}
@@ -97,6 +97,7 @@ const introSection = p.sections?.find(s => s.type === 'intro');
                   alt={`Matrimonio Villa Paris ${index + 1}`}
                   class="w-full h-48 lg:h-56 object-cover hover:scale-105 transition-transform duration-700"
                   loading="lazy"
+                  data-dynamic-img={index === 0 ? 'location-exterior' : index === 1 ? 'location-cuisine' : 'location-interior'}
                 />
               </div>
             ))}

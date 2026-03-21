@@ -21,6 +21,8 @@ Il sito pubblico e statico, generato con Astro, e l'admin e una SPA React separa
 - **SEO-first**: meta tag completi, sitemap XML, robots.txt, JSON-LD (LocalBusiness)
 - **Multilingua IT/EN**: italiano sulla root (`/`), inglese su `/en/`
 - **No-JS baseline**: il sito funziona correttamente anche con JavaScript disabilitato
+- **Immagini dinamiche**: JS progressivo carica immagini da Supabase se disponibili, altrimenti usa le statiche
+- **Form contatti reale**: invio email tramite Supabase Edge Function + SMTP configurato dall'admin
 - **Performance**: lazy loading immagini, CSS ottimizzato, font preconnect
 - **Design system**: palette verde scuro / oro / avorio, tipografia serif + sans
 
@@ -42,16 +44,50 @@ I contenuti sono gestiti tramite file TypeScript in `src/content/`:
 - `pages.ts`: hero, sezioni, SEO metadata per ogni pagina
 - `gallery.ts`: immagini galleria con tag e caption multilingua
 
-Per modificare testi o immagini, editare i file in `src/content/` e rifare la build.
+Per modificare testi o immagini statiche, editare i file in `src/content/` e rifare la build.
+
+### Immagini dinamiche da Supabase
+
+Lo script `public/js/dynamic-images.js` implementa un enhancement progressivo: se l'admin ha caricato immagini su Supabase, queste sostituiscono le statiche. Il meccanismo funziona tramite attributi `data-dynamic-*` sugli elementi HTML.
+
+| Attributo | Funzione |
+|---|---|
+| `data-dynamic-hero="section"` | Sostituisce il background-image dell'hero con la prima immagine della sezione |
+| `data-dynamic-img="section"` | Sostituisce il `src` di un `<img>` con la prima immagine della sezione |
+| `data-dynamic-gallery` | Popola la griglia galleria con tutte le immagini da Supabase |
+
+**Sezioni admin mappate al pubblico:**
+
+| Sezione admin | Dove appare nel sito |
+|---|---|
+| `hero` | Hero homepage |
+| `location-interior` | Card "Interni" nella homepage, hero matrimoni |
+| `location-exterior` | Card "Esterni" nella homepage |
+| `location-cuisine` | Card "Allestimenti" nella homepage |
+| `events-ricorrenze` | Immagine "Ricorrenze" nella homepage |
+| `events-momenti` | Immagine "Eventi aziendali" nella homepage |
+| `opere-arte` | Galleria |
+
+Se JavaScript e disabilitato o Supabase non e raggiungibile, il sito mostra le immagini statiche da `public/images/`.
+
+### Form contatti
+
+Il form contatti (`public/js/contact-form.js`) invia i dati a una Supabase Edge Function (`supabase/functions/send-contact-email/index.ts`) che:
+
+1. Legge la configurazione SMTP dalla tabella `smtp_config`
+2. Invia l'email con i dati del form al destinatario configurato
+3. Mostra un messaggio di conferma e reindirizza alla pagina di ringraziamento
+
+Senza JavaScript il form ha un `action` di fallback verso la pagina di ringraziamento.
 
 ## Admin
 
 L'admin e una SPA React separata con:
 
 - Autenticazione tramite Supabase Auth
-- Gestione galleria con drag-and-drop
-- Configurazione SMTP
-- Dashboard di controllo
+- Gestione galleria con drag-and-drop organizzata per sezioni
+- Configurazione SMTP per l'invio email dal form contatti
+- Dashboard di controllo con statistiche
 
 Il codice sorgente si trova in `admin-app/`. La build produce output in `public/admin/`, che viene incluso nella build Astro finale.
 
@@ -63,6 +99,20 @@ Creare `admin-app/.env` con:
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
+
+### Sezioni galleria admin
+
+L'admin organizza le immagini in sezioni che corrispondono alle aree del sito pubblico:
+
+| Sezione | Descrizione |
+|---|---|
+| Home Page | Immagine principale hero del sito |
+| Interni | Foto degli ambienti interni |
+| Esterni | Foto dei giardini e spazi esterni |
+| Allestimenti | Mise en place e decorazioni |
+| Eventi - Ricorrenze | Battesimi, comunioni, compleanni |
+| Eventi - Aziendali | Meeting, cene di lavoro |
+| Opere d'Arte | Opere esposte nella villa |
 
 ## Sviluppo
 
@@ -164,6 +214,20 @@ server {
 </IfModule>
 ```
 
+## Supabase Edge Function
+
+La Edge Function `send-contact-email` va deployata su Supabase:
+
+```bash
+# Deploy della Edge Function
+supabase functions deploy send-contact-email
+```
+
+Assicurarsi che il progetto Supabase abbia:
+- La tabella `smtp_config` con la configurazione email (gestita dall'admin)
+- La tabella `gallery_images` per le immagini (gestita dall'admin)
+- Lo storage bucket `venue-photos` per i file immagine
+
 ## Note IT/EN
 
 - L'italiano e la lingua predefinita, servito dalla root `/`
@@ -177,11 +241,11 @@ server {
 - Richiede autenticazione Supabase
 - Il `robots.txt` blocca l'indicizzazione di `/admin/`
 - L'admin non interferisce con il sito pubblico statico
-- Per il primo accesso, creare un utente admin tramite Supabase Dashboard
+- Per il primo accesso: registrarsi, poi usare il pulsante "Promuovimi ad Admin" nella dashboard
 
 ## Immagini
 
-Le immagini sono in formato WebP in `public/images/`:
+Le immagini statiche sono in formato WebP in `public/images/`:
 
 ```
 public/images/
@@ -191,10 +255,7 @@ public/images/
   og/             # Open Graph (1200x630)
 ```
 
-Per aggiungere o sostituire immagini:
-1. Posizionare il file WebP nella cartella appropriata
-2. Aggiornare il riferimento in `src/content/pages.ts` o `src/content/gallery.ts`
-3. Rifare la build
+Le immagini dinamiche caricate dall'admin vanno su Supabase Storage (bucket `venue-photos`) e vengono servite direttamente da Supabase CDN.
 
 ## Struttura progetto
 
@@ -207,13 +268,18 @@ Per aggiungere o sostituire immagini:
     pages/            # Pagine IT + /en/ per EN
     styles/           # global.css (design system)
   public/
-    images/           # Immagini statiche
+    images/           # Immagini statiche (fallback)
+    js/               # Script progressivi (dynamic-images, contact-form)
     admin/            # Build output admin (generato)
     robots.txt
   admin-app/          # Sorgente admin React/Vite
     src/
     package.json
     vite.config.ts
+  supabase/
+    functions/        # Edge Functions (send-contact-email)
+    migrations/       # Schema database
+    config.toml
   astro.config.mjs
   package.json
   tailwind.config.ts

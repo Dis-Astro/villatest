@@ -86,7 +86,7 @@ const p = pages.contacts.it;
           <div class="bg-card p-8 lg:p-10 rounded-sm border border-border/50" style="box-shadow:var(--shadow-card)">
             <h3 class="font-display text-xl mb-6">Richiedi Informazioni</h3>
 
-            <form action="/contatti/grazie" method="GET" class="space-y-5">
+            <form data-contact-form class="space-y-5" novalidate>
               <!-- Honeypot -->
               <div class="hidden" aria-hidden="true">
                 <input type="text" name="website" tabindex="-1" autocomplete="off" />
@@ -140,6 +140,15 @@ const p = pages.contacts.it;
               <button type="submit" class="btn-primary w-full text-center">
                 Invia Messaggio
               </button>
+
+              <!-- Fallback noscript: form tradizionale con action GET -->
+              <noscript>
+                <p class="text-xs text-muted-foreground mt-2">
+                  Per inviare il messaggio è necessario abilitare JavaScript, oppure contattaci direttamente via email a
+                  <a href="mailto:info@villaparis.it" class="text-accent">info@villaparis.it</a>
+                  o al telefono <a href="tel:+390858937706" class="text-accent">+39 085 8937706</a>.
+                </p>
+              </noscript>
             </form>
 
             <p class="text-xs text-muted-foreground mt-4 font-body">
@@ -176,4 +185,6 @@ const p = pages.contacts.it;
       </div>
     </div>
   </section>
+
+  <script src="/js/contact-form.js" defer is:inline></script>
 </Layout>

@@ -152,7 +152,7 @@ export default function SmtpConfig() {
         <div>
           <h1 className="font-display text-3xl text-foreground">Configurazione SMTP</h1>
           <p className="text-muted-foreground mt-1">
-            Configura il server email per l'invio di comunicazioni
+            Configura il server email per ricevere i messaggi dal form contatti del sito
           </p>
         </div>
 
@@ -164,7 +164,7 @@ export default function SmtpConfig() {
               Server SMTP
             </CardTitle>
             <CardDescription>
-              Inserisci i dati del tuo server di posta elettronica
+              Inserisci i dati del server di posta. Le email dal form contatti verranno inviate tramite questo server.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -254,7 +254,7 @@ export default function SmtpConfig() {
               Mittente
             </CardTitle>
             <CardDescription>
-              Configura i dati del mittente delle email
+              L'email mittente riceverà anche le risposte. Il nome verrà mostrato come mittente.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
