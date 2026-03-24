@@ -55,12 +55,14 @@ const navRight = navigation.slice(mid);
         >
           <div
             id="logo-circle"
-            class="w-11 h-11 lg:w-14 lg:h-14 rounded-full flex items-center justify-center transition-all duration-500 bg-white/15 backdrop-blur-sm border border-white/30"
+            class="w-11 h-11 lg:w-14 lg:h-14 rounded-full flex items-center justify-center transition-all duration-500 bg-white/15 backdrop-blur-sm border border-white/30 overflow-hidden p-1"
           >
-            <span
-              id="logo-text"
-              class="font-display text-lg lg:text-xl transition-colors duration-500 text-white"
-            >VP</span>
+            <img
+              id="logo-img"
+              src="/images/logo-villa-paris.webp"
+              alt="Villa Paris"
+              class="w-full h-full object-contain transition-all duration-500 brightness-0 invert"
+            />
           </div>
           <span
             id="logo-name"
@@ -164,7 +166,7 @@ const navRight = navigation.slice(mid);
     const header = document.getElementById('site-header');
     const inner  = document.getElementById('header-inner');
     const logoCircle = document.getElementById('logo-circle');
-    const logoText   = document.getElementById('logo-text');
+    const logoImg    = document.getElementById('logo-img');
     const logoName   = document.getElementById('logo-name');
     const navLinks   = document.querySelectorAll('.nav-link-header');
     const mobileBtn  = document.getElementById('mobile-menu-btn');
@@ -185,8 +187,9 @@ const navRight = navigation.slice(mid);
         inner.style.boxShadow = 'var(--shadow-elegant)';
         logoCircle.classList.remove('bg-white/15', 'backdrop-blur-sm', 'border', 'border-white/30');
         logoCircle.classList.add('bg-primary');
-        logoText.classList.remove('text-white');
-        logoText.classList.add('text-primary-foreground');
+        if (logoImg) {
+          logoImg.classList.remove('brightness-0', 'invert');
+        }
         logoName.classList.remove('text-white');
         logoName.classList.add('text-primary');
         navLinks.forEach(link => {
@@ -204,8 +207,9 @@ const navRight = navigation.slice(mid);
         inner.style.boxShadow = '';
         logoCircle.classList.add('bg-white/15', 'backdrop-blur-sm', 'border', 'border-white/30');
         logoCircle.classList.remove('bg-primary');
-        logoText.classList.add('text-white');
-        logoText.classList.remove('text-primary-foreground');
+        if (logoImg) {
+          logoImg.classList.add('brightness-0', 'invert');
+        }
         logoName.classList.add('text-white');
         logoName.classList.remove('text-primary');
         navLinks.forEach(link => {
