@@ -151,6 +151,30 @@ const gallerySection = p.sections?.find(s => s.type === 'gallery');
     </section>
   )}
 
+  <!-- Instagram feed -->
+  <section class="section-padding bg-dotted" data-social-section hidden>
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16">
+        <div class="line-accent mx-auto mb-6"></div>
+        <h2 class="section-title mb-4">From Instagram</h2>
+        <p class="text-muted-foreground font-body max-w-2xl mx-auto">
+          The latest moments shared by Villa Paris.
+        </p>
+      </div>
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto"
+        data-social-feed="instagram"
+        data-limit="6"
+        data-locale="en"
+      ></div>
+      <div class="text-center mt-12">
+        <a href="https://www.instagram.com/villaparis_roseto/" target="_blank" rel="noopener noreferrer" class="btn-elegant">
+          Follow us on Instagram
+        </a>
+      </div>
+    </div>
+  </section>
+
   <!-- ═══ CTA ═══ -->
   <section class="relative py-24 lg:py-32 overflow-hidden">
     <div class="absolute inset-0 bg-primary"></div>

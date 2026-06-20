@@ -1,6 +1,7 @@
 ---
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
+import { getAlternateUrl, normalizeRoutePath } from '@/content/settings';
 import '../styles/global.css';
 
 export interface Props {
@@ -21,22 +22,28 @@ const {
   noindex = false
 } = Astro.props;
 
+const currentPath = normalizeRoutePath(Astro.url.pathname);
+
 const canonicalUrl = canonical
   ? `https://villaparis.rosetoabruzzo.it${canonical}`
-  : `https://villaparis.rosetoabruzzo.it${Astro.url.pathname}`;
+  : `https://villaparis.rosetoabruzzo.it${currentPath}`;
 
-const altPath = locale === 'it'
-  ? `/en${Astro.url.pathname}`
-  : (Astro.url.pathname.replace('/en', '') || '/');
-const defaultPath = locale === 'en'
-  ? (Astro.url.pathname.replace('/en', '') || '/')
-  : Astro.url.pathname;
+const altPath = getAlternateUrl(currentPath, locale);
+const defaultPath = locale === 'en' ? altPath : currentPath;
+
+const fullUrl = canonicalUrl;
+const siteUrl = 'https://villaparis.rosetoabruzzo.it';
+const ogImage = `https://villaparis.rosetoabruzzo.it${image}`;
 
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   "name": "Villa Paris",
   "description": description,
+  "image": ogImage,
+  "url": siteUrl,
+  "telephone": "+39 085 8937706",
+  "email": "info@villaparis.it",
   "address": {
     "@type": "PostalAddress",
     "streetAddress": "Via Acquaviva, 11",
@@ -45,11 +52,28 @@ const jsonLd = {
     "postalCode": "64026",
     "addressCountry": "IT"
   },
-  "telephone": "+39 085 8937706",
-  "email": "info@villaparis.it",
-  "url": "https://villaparis.rosetoabruzzo.it",
-  "image": `https://villaparis.rosetoabruzzo.it${image}`
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 42.6657,
+    "longitude": 14.0152
+  },
+  "openingHours": "Mo-Su 09:00-20:00",
+  "priceRange": "$$$",
+  "sameAs": [
+    "https://www.instagram.com/villaparis_roseto/",
+    "https://www.facebook.com/villaparisroseto/"
+  ]
 };
+
+const isSubPage = currentPath !== '/' && currentPath !== '/en';
+const breadcrumbLd = isSubPage ? {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": locale === 'it' ? siteUrl : `${siteUrl}/en` },
+    { "@type": "ListItem", "position": 2, "name": title.split(' - ')[0], "item": fullUrl }
+  ]
+} : null;
 ---
 
 <!DOCTYPE html>
@@ -60,28 +84,39 @@ const jsonLd = {
   <title>{title}</title>
   <meta name="description" content={description} />
 
-  <link rel="canonical" href={canonicalUrl} />
-  <link rel="alternate" hreflang={locale === 'it' ? 'en' : 'it'} href={`https://villaparis.rosetoabruzzo.it${altPath}`} />
-  <link rel="alternate" hreflang="x-default" href={`https://villaparis.rosetoabruzzo.it${defaultPath}`} />
+  <link rel="canonical" href={fullUrl} />
+  {!noindex && <link rel="alternate" hreflang={locale} href={fullUrl} />}
+  {!noindex && <link rel="alternate" hreflang={locale === 'it' ? 'en' : 'it'} href={`${siteUrl}${altPath}`} />}
+  {!noindex && <link rel="alternate" hreflang="x-default" href={`${siteUrl}${defaultPath}`} />}
 
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
-  <meta property="og:image" content={`https://villaparis.rosetoabruzzo.it${image}`} />
-  <meta property="og:url" content={canonicalUrl} />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:url" content={fullUrl} />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content={locale === 'it' ? 'it_IT' : 'en_US'} />
+  <meta property="og:site_name" content="Villa Paris" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={description} />
-  <meta name="twitter:image" content={`https://villaparis.rosetoabruzzo.it${image}`} />
+  <meta name="twitter:image" content={ogImage} />
 
-  {noindex && <meta name="robots" content="noindex, nofollow" />}
+  <meta
+    name="robots"
+    content={noindex
+      ? 'noindex, nofollow'
+      : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'}
+  />
+
+  <meta name="theme-color" content="#2e503c" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
   <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  {breadcrumbLd && <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />}
 </head>
 <body>
   <div class="flex flex-col min-h-screen">
@@ -92,5 +127,6 @@ const jsonLd = {
     <Footer locale={locale} />
   </div>
   <script src="/js/dynamic-images.js" defer is:inline></script>
+  <script src="/js/social-feed.js" defer is:inline></script>
 </body>
 </html>

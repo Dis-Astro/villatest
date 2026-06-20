@@ -41,6 +41,25 @@ const filteredItems = currentTag
     </div>
   </section>
 
+  <!-- ═══ FILTER TAGS ═══ -->
+  <section class="py-10 bg-secondary border-b border-border/50">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-wrap justify-center gap-3">
+        <a href="/galleria" class:list={['px-5 py-2 text-xs uppercase tracking-[0.2em] font-medium rounded-sm border transition-all duration-300', !currentTag ? 'bg-primary text-primary-foreground border-primary' : 'bg-transparent text-foreground/60 border-border hover:border-accent hover:text-accent']}>Tutti</a>
+        {tags.map((tag) => (
+          <a href={`/galleria?tag=${tag}`} class:list={['px-5 py-2 text-xs uppercase tracking-[0.2em] font-medium rounded-sm border transition-all duration-300', currentTag === tag ? 'bg-primary text-primary-foreground border-primary' : 'bg-transparent text-foreground/60 border-border hover:border-accent hover:text-accent']}>
+            {tag.charAt(0).toUpperCase() + tag.slice(1)}
+          </a>
+        ))}
+      </div>
+      {currentTag && (
+        <div class="text-center mt-4">
+          <p class="text-sm text-muted-foreground font-body">Filtro: <strong class="text-accent">{currentTag}</strong> ({filteredItems.length} immagini)</p>
+        </div>
+      )}
+    </div>
+  </section>
+
   <!-- ═══ GALLERY GRID ═══ -->
   <section class="section-padding bg-dotted">
     <div class="container mx-auto px-4">

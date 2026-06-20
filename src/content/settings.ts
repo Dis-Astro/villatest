@@ -55,9 +55,46 @@ export interface GlobalSettings {
   };
 }
 
+export const urlMap: Record<string, string> = {
+  '/': '/en',
+  '/matrimoni': '/en/weddings',
+  '/galleria': '/en/gallery',
+  '/contatti': '/en/contacts',
+  '/contatti/grazie': '/en/contacts/thank-you',
+  '/en': '/',
+  '/en/weddings': '/matrimoni',
+  '/en/gallery': '/galleria',
+  '/en/contacts': '/contatti',
+  '/en/contacts/thank-you': '/contatti/grazie',
+  '/privacy': '/en/privacy',
+  '/cookie': '/en/cookie',
+  '/en/privacy': '/privacy',
+  '/en/cookie': '/cookie'
+};
+
+export function normalizeRoutePath(pathname: string): string {
+  let normalized = pathname.replace(/\/$/, '') || '/';
+
+  if (normalized.endsWith('/index.html')) {
+    normalized = normalized.slice(0, -'/index.html'.length) || '/';
+  } else if (normalized.endsWith('.html')) {
+    normalized = normalized.slice(0, -'.html'.length) || '/';
+  }
+
+  return normalized || '/';
+}
+
+export function getAlternateUrl(pathname: string, fromLocale: 'it' | 'en'): string {
+  const normalized = normalizeRoutePath(pathname);
+  const mapped = urlMap[normalized];
+  if (mapped) return mapped;
+  // fallback: simple prefix toggle
+  return fromLocale === 'it' ? `/en${normalized}` : (normalized.replace('/en', '') || '/');
+}
+
 export const globalSettings: GlobalSettings = {
   logo: {
-    src: '/images/logo-villa-paris.svg',
+    src: '/images/logo-villa-paris.webp',
     alt: 'Villa Paris - Roseto degli Abruzzi',
     width: 180,
     height: 60

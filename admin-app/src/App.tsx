@@ -8,6 +8,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/admin/Dashboard";
 import AdminGallery from "./pages/admin/Gallery";
 import SmtpConfig from "./pages/admin/SmtpConfig";
+import SocialIntegrations from "./pages/admin/Social";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
             <Route path="/" element={<Dashboard />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/gallery" element={<AdminGallery />} />
+            <Route path="/social" element={<SocialIntegrations />} />
             <Route path="/smtp" element={<SmtpConfig />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

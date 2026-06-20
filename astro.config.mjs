@@ -7,7 +7,15 @@ export default defineConfig({
   output: 'static',
   integrations: [
     tailwind(),
-    sitemap()
+    sitemap({
+      filter: (page) => {
+        const exclude = ['/contatti/grazie', '/en/contacts/thank-you'];
+        return !exclude.some(p => page.includes(p));
+      },
+      lastmod: new Date(),
+      changefreq: 'weekly',
+      priority: 0.7
+    })
   ],
   vite: {
     resolve: {

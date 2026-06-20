@@ -8,7 +8,7 @@ import {
   Menu,
   X,
   Home,
-  Settings,
+  Share2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -21,6 +21,7 @@ interface AdminLayoutProps {
 const navItems = [
   { label: "Dashboard", icon: Home, href: "/" },
   { label: "Galleria", icon: Image, href: "/gallery" },
+  { label: "Social", icon: Share2, href: "/social" },
   { label: "Email SMTP", icon: Mail, href: "/smtp" },
 ];
 

@@ -64,8 +64,8 @@ export const pages: Record<string, Record<'it' | 'en', PageContent>> = {
         }
       ],
       seo: {
-        title: 'Villa Paris - Location Matrimoni Roseto degli Abruzzi',
-        description: 'Location esclusiva per matrimoni ed eventi a Roseto degli Abruzzi. Una cornice elegante e raffinata per celebrare il tuo giorno speciale.',
+        title: 'Villa Paris - Location Matrimoni a Roseto degli Abruzzi | Location Esclusiva',
+        description: 'Location esclusiva per matrimoni ed eventi a Roseto degli Abruzzi (TE). Villa Paris offre giardini incantevoli, sale eleganti e servizio impeccabile per il tuo giorno speciale. Richiedi informazioni.',
         image: '/images/og/og-home.jpg'
       }
     },
@@ -108,8 +108,8 @@ export const pages: Record<string, Record<'it' | 'en', PageContent>> = {
         }
       ],
       seo: {
-        title: 'Villa Paris - Wedding Venue Roseto degli Abruzzi',
-        description: 'Exclusive venue for weddings and events in Roseto degli Abruzzi. An elegant and refined setting to celebrate your special day.',
+        title: 'Villa Paris - Wedding Venue in Roseto degli Abruzzi | Exclusive Location',
+        description: 'Exclusive wedding venue in Roseto degli Abruzzi, Italy. Villa Paris offers enchanting gardens, elegant halls and impeccable service for your perfect day. Request information.',
         image: '/images/og/og-home.jpg'
       }
     }
@@ -135,8 +135,8 @@ export const pages: Record<string, Record<'it' | 'en', PageContent>> = {
         }
       ],
       seo: {
-        title: 'Matrimoni a Villa Paris - Location Roseto degli Abruzzi',
-        description: 'Organizza il tuo matrimonio perfetto a Villa Paris. Location esclusiva con giardini, sale eleganti e servizio impeccabile a Roseto degli Abruzzi.',
+        title: 'Matrimoni a Villa Paris - Location Matrimoni a Roseto degli Abruzzi | Villa Paris',
+        description: 'Organizza il tuo matrimonio perfetto a Villa Paris a Roseto degli Abruzzi. Location esclusiva con giardini per cerimonie, sale eleganti e servizio coordinamento eventi. Richiedi un appuntamento.',
         image: '/images/og/og-matrimoni.jpg'
       }
     },
@@ -160,8 +160,8 @@ export const pages: Record<string, Record<'it' | 'en', PageContent>> = {
         }
       ],
       seo: {
-        title: 'Weddings at Villa Paris - Venue Roseto degli Abruzzi',
-        description: 'Plan your perfect wedding at Villa Paris. Exclusive venue with gardens, elegant halls and impeccable service in Roseto degli Abruzzi.',
+        title: 'Weddings at Villa Paris - Wedding Venue in Roseto degli Abruzzi, Italy',
+        description: 'Plan your perfect wedding at Villa Paris in Roseto degli Abruzzi. Exclusive venue with ceremony gardens, elegant reception halls and full event coordination. Book a visit.',
         image: '/images/og/og-matrimoni.jpg'
       }
     }
@@ -175,8 +175,8 @@ export const pages: Record<string, Record<'it' | 'en', PageContent>> = {
         image: '/images/hero/gallery-hero.webp'
       },
       seo: {
-        title: 'Galleria - Villa Paris Roseto degli Abruzzi',
-        description: 'Scopri le immagini di Villa Paris, location esclusiva per matrimoni ed eventi a Roseto degli Abruzzi.',
+        title: 'Galleria Fotografica - Villa Paris | Location Matrimoni Roseto degli Abruzzi',
+        description: 'Esplora la galleria fotografica di Villa Paris: giardini, sale ricevimenti, allestimenti e dettagli della nostra esclusiva location per matrimoni a Roseto degli Abruzzi.',
         image: '/images/og/og-galleria.jpg'
       }
     },
@@ -188,8 +188,8 @@ export const pages: Record<string, Record<'it' | 'en', PageContent>> = {
         image: '/images/hero/gallery-hero.webp'
       },
       seo: {
-        title: 'Gallery - Villa Paris Roseto degli Abruzzi',
-        description: 'Discover images of Villa Paris, exclusive venue for weddings and events in Roseto degli Abruzzi.',
+        title: 'Photo Gallery - Villa Paris | Wedding Venue Roseto degli Abruzzi',
+        description: 'Browse the photo gallery of Villa Paris: gardens, reception halls, setups and details of our exclusive wedding venue in Roseto degli Abruzzi, Italy.',
         image: '/images/og/og-galleria.jpg'
       }
     }
@@ -203,8 +203,8 @@ export const pages: Record<string, Record<'it' | 'en', PageContent>> = {
         image: '/images/hero/contacts-hero.webp'
       },
       seo: {
-        title: 'Contatti - Villa Paris Roseto degli Abruzzi',
-        description: 'Contatta Villa Paris per informazioni sulla nostra location per matrimoni ed eventi a Roseto degli Abruzzi.',
+        title: 'Contatta Villa Paris - Location Matrimoni a Roseto degli Abruzzi | Informazioni',
+        description: 'Contatta Villa Paris per informazioni sulla nostra location per matrimoni ed eventi a Roseto degli Abruzzi. Richiedi un preventivo gratuito o prenota una visita. Tel: +39 085 8937706.',
         image: '/images/og/og-contatti.jpg'
       }
     },
@@ -216,8 +216,8 @@ export const pages: Record<string, Record<'it' | 'en', PageContent>> = {
         image: '/images/hero/contacts-hero.webp'
       },
       seo: {
-        title: 'Contacts - Villa Paris Roseto degli Abruzzi',
-        description: 'Contact Villa Paris for information about our wedding and event venue in Roseto degli Abruzzi.',
+        title: 'Contact Villa Paris - Wedding Venue in Roseto degli Abruzzi, Italy',
+        description: 'Contact Villa Paris for information about our wedding and event venue in Roseto degli Abruzzi, Italy. Request a free quote or book a visit. Phone: +39 085 8937706.',
         image: '/images/og/og-contatti.jpg'
       }
     }

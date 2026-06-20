@@ -92,8 +92,8 @@ const labels = locale === 'it'
         &copy; {year} Villa Paris. {labels.rights}
       </p>
       <div class="flex gap-6">
-        <a href="#" class="text-xs text-white/30 hover:text-accent transition-colors">{labels.privacy}</a>
-        <a href="#" class="text-xs text-white/30 hover:text-accent transition-colors">{labels.cookie}</a>
+        <a href={locale === 'it' ? '/privacy' : '/en/privacy'} class="text-xs text-white/30 hover:text-accent transition-colors">{labels.privacy}</a>
+        <a href={locale === 'it' ? '/cookie' : '/en/cookie'} class="text-xs text-white/30 hover:text-accent transition-colors">{labels.cookie}</a>
       </div>
     </div>
   </div>

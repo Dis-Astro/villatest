@@ -1,5 +1,5 @@
 ---
-import { globalSettings } from '@/content/settings';
+import { globalSettings, getAlternateUrl, normalizeRoutePath } from '@/content/settings';
 
 export interface Props {
   locale: 'it' | 'en';
@@ -8,7 +8,7 @@ export interface Props {
 const { locale } = Astro.props;
 const settings = globalSettings;
 const navigation = locale === 'it' ? settings.navigation.it : settings.navigation.en;
-const currentPath = Astro.url.pathname;
+const currentPath = normalizeRoutePath(Astro.url.pathname);
 
 /* Split nav in two halves around the logo */
 const mid = Math.ceil(navigation.length / 2);
@@ -91,9 +91,7 @@ const navRight = navigation.slice(mid);
 
           <!-- Language switcher desktop -->
           <a
-            href={locale === 'it'
-              ? '/en' + (currentPath === '/' ? '' : currentPath)
-              : (currentPath.replace('/en', '') || '/')}
+            href={getAlternateUrl(currentPath, locale)}
             class="ml-6 pl-6 border-l border-white/20 text-[11px] tracking-[0.2em] text-white/50 hover:text-white transition-colors duration-300"
           >
             {locale === 'it' ? 'EN' : 'IT'}
@@ -148,9 +146,7 @@ const navRight = navigation.slice(mid);
       </div>
       <div class="mt-4 pt-4 border-t border-white/10">
         <a
-          href={locale === 'it'
-            ? '/en' + (currentPath === '/' ? '' : currentPath)
-            : (currentPath.replace('/en', '') || '/')}
+          href={getAlternateUrl(currentPath, locale)}
           class="text-sm text-white/50 hover:text-accent transition-colors"
         >
           {locale === 'it' ? 'English' : 'Italiano'}

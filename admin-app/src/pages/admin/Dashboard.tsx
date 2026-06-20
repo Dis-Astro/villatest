@@ -1,7 +1,7 @@
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Image, Mail, Eye, Shield, Loader2 } from "lucide-react";
+import { Image, Mail, Eye, Shield, Loader2, Share2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 export default function Dashboard() {
   const [imageCount, setImageCount] = useState(0);
   const [hasSmtpConfig, setHasSmtpConfig] = useState(false);
+  const [socialPostCount, setSocialPostCount] = useState(0);
   const [isPromoting, setIsPromoting] = useState(false);
   const { user, isAdmin } = useAuth();
   const { toast } = useToast();
@@ -34,6 +35,15 @@ export default function Dashboard() {
         .maybeSingle();
 
       setHasSmtpConfig(!!data);
+
+      const { count: postCount } = await supabase
+        .from("social_posts")
+        .select("*", { count: "exact", head: true })
+        .eq("is_visible", true);
+
+      if (postCount !== null) {
+        setSocialPostCount(postCount);
+      }
     };
 
     fetchStats();
@@ -80,7 +90,7 @@ export default function Dashboard() {
       value: imageCount.toString(),
       description: "Foto caricate",
       icon: Image,
-      href: "/admin/gallery",
+      href: "/gallery",
       color: "text-primary",
     },
     {
@@ -88,8 +98,16 @@ export default function Dashboard() {
       value: hasSmtpConfig ? "Configurato" : "Non configurato",
       description: hasSmtpConfig ? "Email pronta" : "Da configurare",
       icon: Mail,
-      href: "/admin/smtp",
+      href: "/smtp",
       color: hasSmtpConfig ? "text-primary" : "text-accent",
+    },
+    {
+      title: "Post Social",
+      value: socialPostCount.toString(),
+      description: "Visibili sul sito",
+      icon: Share2,
+      href: "/social",
+      color: socialPostCount > 0 ? "text-primary" : "text-accent",
     },
   ];
 
@@ -181,13 +199,19 @@ export default function Dashboard() {
                 → Visualizza il sito
               </a>
               <Link
-                to="/admin/gallery"
+                to="/gallery"
                 className="block text-sm text-primary hover:underline"
               >
                 → Gestisci galleria
               </Link>
               <Link
-                to="/admin/smtp"
+                to="/social"
+                className="block text-sm text-primary hover:underline"
+              >
+                → Gestisci social
+              </Link>
+              <Link
+                to="/smtp"
                 className="block text-sm text-primary hover:underline"
               >
                 → Configura email
