@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "build:dev": "astro build",
     "build:admin": "cd admin-app && npm run build",
     "build:all": "cd admin-app && npm run build && cd .. && astro build",
     "preview": "astro preview",
@@ -14,6 +15,7 @@
   "dependencies": {
     "@astrojs/sitemap": "^3.7.0",
     "@astrojs/tailwind": "^6.0.2",
+    "@supabase/supabase-js": "^2.108.2",
     "astro": "^5.18.0"
   },
   "devDependencies": {
