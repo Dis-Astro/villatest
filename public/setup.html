@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Villa Paris - Setup Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: system-ui, -apple-system, sans-serif; background: #f5f5f0; color: #2e503c; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+.card { background: #fff; border-radius: 8px; padding: 40px; max-width: 500px; width: 100%; box-shadow: 0 10px 40px rgba(46,80,60,0.15); }
+h1 { font-size: 24px; margin-bottom: 8px; }
+p { color: #666; margin-bottom: 24px; font-size: 14px; }
+label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; color: #555; }
+input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; margin-bottom: 16px; }
+input:focus { outline: none; border-color: #2e503c; }
+button { width: 100%; padding: 12px; background: #2e503c; color: #fff; border: none; border-radius: 4px; font-size: 14px; font-weight: 600; cursor: pointer; }
+button:hover { background: #1e3828; }
+button:disabled { opacity: 0.6; cursor: not-allowed; }
+.tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+.tab { flex: 1; padding: 10px; text-align: center; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; font-size: 14px; background: #fff; }
+.tab.active { background: #2e503c; color: #fff; border-color: #2e503c; }
+.msg { padding: 12px; border-radius: 4px; margin-top: 16px; font-size: 13px; }
+.msg.success { background: #e8f5e9; border: 1px solid #a5d6a7; color: #1b5e20; }
+.msg.error { background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; }
+.msg.info { background: #e3f2fd; border: 1px solid #90caf9; color: #0d47a1; }
+.hidden { display: none; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-top: 8px; }
+.badge.yes { background: #e8f5e9; color: #1b5e20; }
+.badge.no { background: #fef2f2; color: #991b1b; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Villa Paris — Setup Admin</h1>
+  <p>Registra o recupera l'accesso all'admin panel.</p>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="register">Registrati</div>
+    <div class="tab" data-tab="login">Accedi</div>
+    <div class="tab" data-tab="reset">Reset Password</div>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="tab-register">
+    <label for="reg-email">Email</label>
+    <input type="email" id="reg-email" placeholder="admin@villaparis.it" />
+    <label for="reg-password">Password (min 6 caratteri)</label>
+    <input type="password" id="reg-password" placeholder="••••••" />
+    <button id="btn-register">Registrati</button>
+    <div id="msg-register"></div>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="tab-login" class="hidden">
+    <label for="login-email">Email</label>
+    <input type="email" id="login-email" placeholder="admin@villaparis.it" />
+    <label for="login-password">Password</label>
+    <input type="password" id="login-password" placeholder="••••••" />
+    <button id="btn-login">Accedi</button>
+    <div id="msg-login"></div>
+  </div>
+
+  <!-- RESET -->
+  <div id="tab-reset" class="hidden">
+    <label for="reset-email">Email</label>
+    <input type="email" id="reset-email" placeholder="admin@villaparis.it" />
+    <button id="btn-reset">Invia link di reset</button>
+    <div id="msg-reset"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const SUPABASE_URL = 'https://jalalwlaxtsejvzwuvvk.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphbGFsd2xheHRzZWp2end1dnZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMDI0NjQsImV4cCI6MjA4NTc3ODQ2NH0.hFCHMQdlckaDW6ON9ZEnyA6kbF-lhTb48Tq6duiVXeg';
+
+  var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: { persistSession: false }
+  });
+
+  var tabs = document.querySelectorAll('.tab');
+  var tabIds = ['register', 'login', 'reset'];
+
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      tabIds.forEach(function(id) {
+        document.getElementById('tab-' + id).classList.add('hidden');
+      });
+      document.getElementById('tab-' + tab.dataset.tab).classList.remove('hidden');
+    });
+  });
+
+  function msg(el, type, text) {
+    el.innerHTML = '<div class="msg ' + type + '">' + text + '</div>';
+  }
+
+  // REGISTER
+  document.getElementById('btn-register').addEventListener('click', async function() {
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Registrazione in corso...';
+    var email = document.getElementById('reg-email').value.trim();
+    var password = document.getElementById('reg-password').value;
+    var el = document.getElementById('msg-register');
+
+    if (!email || !password) {
+      msg(el, 'error', 'Inserisci email e password.');
+      btn.disabled = false; btn.textContent = 'Registrati';
+      return;
+    }
+    if (password.length < 6) {
+      msg(el, 'error', 'La password deve avere almeno 6 caratteri.');
+      btn.disabled = false; btn.textContent = 'Registrati';
+      return;
+    }
+
+    var { data, error } = await supabase.auth.signUp({
+      email: email,
+      password: password,
+      options: { emailRedirectTo: window.location.origin + '/admin' }
+    });
+
+    if (error) {
+      msg(el, 'error', 'ERRORE: ' + error.message);
+      btn.disabled = false; btn.textContent = 'Registrati';
+      return;
+    }
+
+    if (data.user?.identities?.length === 0) {
+      msg(el, 'error', 'Questo account esiste gi&agrave;. Vai su "Accedi" o "Reset Password".');
+      btn.disabled = false; btn.textContent = 'Registrati';
+      return;
+    }
+
+    if (data.user) {
+      msg(el, 'success', 
+        '✅ <strong>Registrazione riuscita!</strong><br/><br/>' +
+        'Email: ' + email + '<br/>' +
+        'Conferma email: ' + 
+        (data.user.email_confirmed_at 
+          ? '<span class="badge yes">GIA\' CONFERMATA</span> — Puoi accedere subito!' 
+          : '<span class="badge no">DA CONFERMARE</span> — Controlla la tua email e clicca sul link di conferma.') +
+        '<br/><br/>' +
+        (data.user.email_confirmed_at 
+          ? 'Vai su <a href="/admin" style="color:#2e503c;font-weight:bold;">/admin</a> per accedere.' 
+          : 'Se non trovi l\'email, controlla lo spam.')
+      );
+    }
+
+    btn.disabled = false; btn.textContent = 'Registrati';
+  });
+
+  // LOGIN
+  document.getElementById('btn-login').addEventListener('click', async function() {
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Accesso in corso...';
+    var email = document.getElementById('login-email').value.trim();
+    var password = document.getElementById('login-password').value;
+    var el = document.getElementById('msg-login');
+
+    if (!email || !password) {
+      msg(el, 'error', 'Inserisci email e password.');
+      btn.disabled = false; btn.textContent = 'Accedi';
+      return;
+    }
+
+    var { data, error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+
+    if (error) {
+      if (error.message.includes('Email not confirmed')) {
+        msg(el, 'error', '❌ <strong>Email non confermata.</strong> Controlla la tua email (anche spam) per il link di conferma. Se non arriva, usa "Reset Password" per ricevere una nuova email.');
+      } else if (error.message.includes('Invalid login credentials')) {
+        msg(el, 'error', '❌ <strong>Credenziali errate.</strong> Email o password sbagliata. Usa "Reset Password" se hai dimenticato la password.');
+      } else if (error.message.includes('disabled')) {
+        msg(el, 'error', '❌ <strong>Registrazione disabilitata.</strong> Il proprietario del progetto Supabase deve abilitare le registrazioni in Authentication → Settings.');
+      } else {
+        msg(el, 'error', '❌ ERRORE: ' + error.message);
+      }
+      btn.disabled = false; btn.textContent = 'Accedi';
+      return;
+    }
+
+    msg(el, 'success', '✅ <strong>Accesso riuscito!</strong> Ora vai su <a href="/admin" style="color:#2e503c;font-weight:bold;">/admin</a>.<br/><small>Se sei il primo utente, clicca "Promuovi ad admin" nella dashboard.</small>');
+    btn.disabled = false; btn.textContent = 'Accedi';
+  });
+
+  // RESET PASSWORD
+  document.getElementById('btn-reset').addEventListener('click', async function() {
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Invio in corso...';
+    var email = document.getElementById('reset-email').value.trim();
+    var el = document.getElementById('msg-reset');
+
+    if (!email) {
+      msg(el, 'error', 'Inserisci la tua email.');
+      btn.disabled = false; btn.textContent = 'Invia link di reset';
+      return;
+    }
+
+    var { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/admin'
+    });
+
+    if (error) {
+      msg(el, 'error', 'ERRORE: ' + error.message);
+    } else {
+      msg(el, 'success', '✅ <strong>Email di reset inviata!</strong> Controlla la tua casella di posta (anche spam).<br/><br/>' +
+        'Clicca sul link nell\'email per impostare una nuova password.');
+    }
+
+    btn.disabled = false; btn.textContent = 'Invia link di reset';
+  });
+
+  // Auto-detect: prova a vedere se l'istanza Supabase risponde
+  fetch(SUPABASE_URL + '/rest/v1/', {
+    headers: { 'apikey': SUPABASE_KEY }
+  }).then(function(r) {
+    // Supabase e' raggiungibile
+  }).catch(function() {
+    var el = document.getElementById('msg-register');
+    msg(el, 'error', '⚠️ <strong>Supabase non raggiungibile.</strong> Verifica che il progetto sia attivo su supabase.com/dashboard.');
+  });
+
+})();
+</script>
+</body>
+</html>
