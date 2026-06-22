@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Mail, Lock, Eye, EyeOff, ArrowLeft, Loader2, Shield } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowLeft, Loader2, Shield, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +23,8 @@ export default function Auth() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [isPromoting, setIsPromoting] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
   
   const { signIn, signUp, user, isLoading } = useAuth();
   const navigate = useNavigate();
@@ -49,6 +51,39 @@ export default function Auth() {
         setErrors(newErrors);
       }
       return false;
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!email) {
+      toast({
+        variant: "destructive",
+        title: "Inserisci la tua email",
+        description: "Inserisci l'indirizzo email per ricevere il link di reset.",
+      });
+      return;
+    }
+
+    setIsResetting(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/admin`,
+      });
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Errore",
+          description: error.message,
+        });
+      } else {
+        setResetSent(true);
+        toast({
+          title: "Email inviata",
+          description: "Controlla la tua casella di posta per il link di reset.",
+        });
+      }
+    } finally {
+      setIsResetting(false);
     }
   };
 
@@ -211,11 +246,34 @@ export default function Auth() {
             </Button>
           </form>
 
+          {/* Forgot password */}
+          {isLogin && !resetSent && (
+            <div className="mt-4 text-center">
+              <button
+                type="button"
+                onClick={handleResetPassword}
+                disabled={isResetting}
+                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                <KeyRound className="w-3.5 h-3.5" />
+                {isResetting ? "Invio in corso..." : "Password dimenticata?"}
+              </button>
+            </div>
+          )}
+
+          {resetSent && (
+            <div className="mt-4 p-3 bg-primary/10 border border-primary/20 rounded-md text-center">
+              <p className="text-sm text-primary font-medium">
+                Email di reset inviata! Controlla la tua casella di posta.
+              </p>
+            </div>
+          )}
+
           {/* Toggle */}
-          <div className="mt-6 text-center">
+          <div className="mt-4 text-center">
             <button
               type="button"
-              onClick={() => setIsLogin(!isLogin)}
+              onClick={() => { setIsLogin(!isLogin); setResetSent(false); }}
               className="text-sm text-muted-foreground hover:text-primary transition-colors"
             >
               {isLogin
