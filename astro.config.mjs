@@ -5,6 +5,7 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: 'https://villaparis.rosetoabruzzo.it',
   output: 'static',
+  trailingSlash: 'always',
   integrations: [
     tailwind(),
     sitemap({
@@ -26,6 +27,6 @@ export default defineConfig({
   },
   build: {
     assets: 'assets',
-    format: 'file'
+    format: 'directory'
   }
 });
