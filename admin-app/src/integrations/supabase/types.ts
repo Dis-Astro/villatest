@@ -17,6 +17,7 @@ export type Database = {
       gallery_images: {
         Row: {
           caption: string | null
+          caption_en: string | null
           created_at: string | null
           file_name: string
           file_path: string
@@ -24,11 +25,13 @@ export type Database = {
           id: string
           order_index: number
           section: string
+          tags: string[]
           updated_at: string | null
           width: number | null
         }
         Insert: {
           caption?: string | null
+          caption_en?: string | null
           created_at?: string | null
           file_name: string
           file_path: string
@@ -36,11 +39,13 @@ export type Database = {
           id?: string
           order_index?: number
           section?: string
+          tags?: string[]
           updated_at?: string | null
           width?: number | null
         }
         Update: {
           caption?: string | null
+          caption_en?: string | null
           created_at?: string | null
           file_name?: string
           file_path?: string
@@ -48,6 +53,7 @@ export type Database = {
           id?: string
           order_index?: number
           section?: string
+          tags?: string[]
           updated_at?: string | null
           width?: number | null
         }

@@ -9,76 +9,173 @@ const currentTag = Astro.url.searchParams.get('tag');
 const filteredItems = currentTag
   ? galleryItems.filter(item => item.tags.includes(currentTag))
   : galleryItems;
+
+const tagLabels: Record<string, string> = {
+  arredi: 'Furnishings',
+  cerimonia: 'Ceremony',
+  cucina: 'Kitchen',
+  dettagli: 'Details',
+  esterni: 'Exteriors',
+  evento: 'Events',
+  fiori: 'Flowers',
+  giardino: 'Garden',
+  interni: 'Interiors',
+  notte: 'Evening',
+  piscina: 'Pool',
+  ricevimento: 'Reception',
+  sale: 'Halls',
+  salone: 'Lounge',
+  tramonto: 'Sunset',
+  vista: 'View',
+};
+
+const tagLabel = (tag: string) => tagLabels[tag] ?? tag.charAt(0).toUpperCase() + tag.slice(1);
+const tagCount = (tag: string) => galleryItems.filter(item => item.tags.includes(tag)).length;
 ---
 
-<Layout title={p.seo.title} description={p.seo.description} image={p.seo.image} locale="en">
-  <!-- ═══ HERO ═══ -->
+<Layout
+  title={p.seo.title}
+  description={p.seo.description}
+  image={p.seo.image}
+  locale="en"
+>
   <section class="relative h-[50vh] min-h-[400px] flex items-center justify-center overflow-hidden" data-dynamic-slider="hero">
     <div class="absolute inset-0" data-hero-images>
-      <img src={p.hero.image} alt={p.hero.title} class="w-full h-full object-cover" loading="eager" />
+      <img
+        src={p.hero.image}
+        alt={p.hero.title}
+        class="w-full h-full object-cover"
+        loading="eager"
+      />
       <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-black/30 to-black/50"></div>
     </div>
     <div class="relative z-10 text-center text-white px-4 max-w-3xl mx-auto">
       <div class="line-accent mx-auto mb-8 opacity-80"></div>
-      <h1 class="font-display text-4xl md:text-6xl font-light tracking-wide mb-4 text-shadow-elegant">{p.hero.title}</h1>
-      {p.hero.description && <p class="text-lg font-body font-light text-white/70 max-w-2xl mx-auto leading-relaxed">{p.hero.description}</p>}
-    </div>
-  </section>
-
-  <!-- ═══ FILTER TAGS ═══ -->
-  <section class="py-10 bg-secondary border-b border-border/50">
-    <div class="container mx-auto px-4">
-      <div class="flex flex-wrap justify-center gap-3">
-        <a href="/en/gallery" class:list={['px-5 py-2 text-xs uppercase tracking-[0.2em] font-medium rounded-sm border transition-all duration-300', !currentTag ? 'bg-primary text-primary-foreground border-primary' : 'bg-transparent text-foreground/60 border-border hover:border-accent hover:text-accent']}>All</a>
-        {tags.map((tag) => (
-          <a href={`/en/gallery?tag=${tag}`} class:list={['px-5 py-2 text-xs uppercase tracking-[0.2em] font-medium rounded-sm border transition-all duration-300', currentTag === tag ? 'bg-primary text-primary-foreground border-primary' : 'bg-transparent text-foreground/60 border-border hover:border-accent hover:text-accent']}>
-            {tag.charAt(0).toUpperCase() + tag.slice(1)}
-          </a>
-        ))}
-      </div>
-      {currentTag && (
-        <div class="text-center mt-4">
-          <p class="text-sm text-muted-foreground font-body">Filtering by: <strong class="text-accent">{currentTag}</strong> ({filteredItems.length} images)</p>
-        </div>
+      <h1 class="font-display text-4xl md:text-6xl font-light tracking-wide mb-4 text-shadow-elegant">
+        {p.hero.title}
+      </h1>
+      {p.hero.description && (
+        <p class="text-lg font-body font-light text-white/70 max-w-2xl mx-auto leading-relaxed">
+          {p.hero.description}
+        </p>
       )}
     </div>
   </section>
 
-  <!-- ═══ GALLERY GRID ═══ -->
   <section class="section-padding bg-dotted">
     <div class="container mx-auto px-4">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" data-dynamic-gallery="all">
-        {filteredItems.map((item) => (
-          <div class="location-card group rounded-sm overflow-hidden bg-muted">
-            <img src={item.src} alt={item.alt.en} class="w-full h-64 object-cover" loading="lazy" width={item.width} height={item.height} />
-            <div class="location-card-overlay flex items-end p-5">
-              <div>
-                <p class="text-white text-sm font-body font-medium mb-2">{item.caption.en}</p>
-                <div class="flex flex-wrap gap-1.5">
-                  {item.tags.map((tag) => (
-                    <span class="text-[10px] uppercase tracking-wider bg-white/15 text-white/80 px-2 py-0.5 rounded-sm">{tag}</span>
-                  ))}
+      <div class="grid gap-8 lg:grid-cols-[240px_minmax(0,1fr)]">
+        <aside class="lg:sticky lg:top-28 lg:self-start">
+          <div class="rounded-sm border border-border/70 bg-background/90 p-3 shadow-sm">
+            <div class="px-3 pb-3">
+              <p class="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">Library</p>
+            </div>
+            <nav
+              class="flex gap-2 overflow-x-auto pb-1 lg:block lg:space-y-1 lg:overflow-visible"
+              data-gallery-tags-nav
+              data-gallery-base-path="/en/gallery"
+              data-gallery-current-tag={currentTag || ''}
+              data-gallery-locale="en"
+            >
+              <a
+                href="/en/gallery"
+                class:list={[
+                  'flex min-w-max items-center justify-between gap-4 rounded-sm px-3 py-2 text-sm transition-colors',
+                  !currentTag ? 'bg-primary text-primary-foreground' : 'text-foreground/70 hover:bg-muted hover:text-foreground'
+                ]}
+              >
+                <span>All Photos</span>
+                <span class="text-xs opacity-70">{galleryItems.length}</span>
+              </a>
+              {tags.map((tag) => (
+                <a
+                  href={`/en/gallery?tag=${tag}`}
+                  class:list={[
+                    'flex min-w-max items-center justify-between gap-4 rounded-sm px-3 py-2 text-sm transition-colors',
+                    currentTag === tag ? 'bg-primary text-primary-foreground' : 'text-foreground/70 hover:bg-muted hover:text-foreground'
+                  ]}
+                >
+                  <span>{tagLabel(tag)}</span>
+                  <span class="text-xs opacity-70">{tagCount(tag)}</span>
+                </a>
+              ))}
+            </nav>
+          </div>
+        </aside>
+
+        <div>
+          <div class="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p class="text-xs uppercase tracking-[0.25em] text-accent font-medium">Album</p>
+              <h2 class="section-title text-2xl md:text-3xl mt-2" data-gallery-heading>
+                {currentTag ? tagLabel(currentTag) : 'All Photos'}
+              </h2>
+            </div>
+            <p class="text-sm text-muted-foreground font-body" data-gallery-count>
+              {filteredItems.length} {filteredItems.length === 1 ? 'image' : 'images'}
+            </p>
+          </div>
+
+          <div
+            class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4"
+            data-dynamic-gallery="all"
+            data-gallery-current-tag={currentTag || ''}
+            data-gallery-locale="en"
+          >
+            {filteredItems.map((item) => (
+              <div
+                class="location-card group rounded-sm overflow-hidden bg-muted aspect-square"
+                data-gallery-item
+                data-gallery-tags={item.tags.join(',')}
+              >
+                <img
+                  src={item.src}
+                  alt={item.alt.en}
+                  class="w-full h-full object-cover"
+                  loading="lazy"
+                  width={item.width}
+                  height={item.height}
+                />
+                <div class="location-card-overlay flex items-end p-5">
+                  <div>
+                    <p class="text-white text-sm font-body font-medium mb-2">{item.caption.en}</p>
+                    <div class="flex flex-wrap gap-1.5">
+                      {item.tags.map((tag) => (
+                        <span class="text-[10px] uppercase tracking-wider bg-white/15 text-white/80 px-2 py-0.5 rounded-sm">
+                          {tagLabel(tag)}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
-        ))}
+
+          {filteredItems.length === 0 && (
+            <div class="text-center py-16">
+              <p class="text-muted-foreground font-body">No images found for this filter.</p>
+            </div>
+          )}
+        </div>
       </div>
-      {filteredItems.length === 0 && (
-        <div class="text-center py-16"><p class="text-muted-foreground font-body">No images found for this filter.</p></div>
-      )}
     </div>
   </section>
 
-  <!-- ═══ CTA ═══ -->
   <section class="relative py-24 lg:py-32 overflow-hidden">
     <div class="absolute inset-0 bg-primary"></div>
     <div class="absolute inset-0 bg-dotted opacity-10"></div>
     <div class="relative z-10 container mx-auto px-4 text-center">
       <div class="line-accent mx-auto mb-8" style="background-color:hsl(var(--accent))"></div>
-      <h2 class="font-display text-3xl md:text-4xl lg:text-5xl text-white font-light tracking-wide mb-6">Get Inspired for Your Event</h2>
-      <p class="text-white/70 font-body text-lg max-w-2xl mx-auto mb-10 leading-relaxed">Discover how Villa Paris can make your day unforgettable.</p>
-      <a href="/en/contacts" class="btn-elegant border-white/60 text-white hover:bg-white hover:text-primary">Request Availability</a>
+      <h2 class="font-display text-3xl md:text-4xl lg:text-5xl text-white font-light tracking-wide mb-6">
+        Get Inspired for Your Event
+      </h2>
+      <p class="text-white/70 font-body text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+        Discover how Villa Paris can make your day unforgettable.
+      </p>
+      <a href="/en/contacts" class="btn-elegant border-white/60 text-white hover:bg-white hover:text-primary">
+        Request Availability
+      </a>
     </div>
   </section>
 </Layout>

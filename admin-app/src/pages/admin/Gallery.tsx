@@ -63,7 +63,9 @@ interface GalleryImage {
   file_path: string;
   file_name: string;
   caption: string | null;
+  caption_en: string | null;
   section: string;
+  tags: string[] | null;
   order_index: number;
 }
 
@@ -124,6 +126,33 @@ function imgUrl(filePath: string) {
   return `${SUPABASE_URL}/storage/v1/object/public/venue-photos/${filePath}`;
 }
 
+function normalizeTags(value: string): string[] {
+  return value
+    .split(",")
+    .map((tag) => tag.trim().toLowerCase())
+    .filter(Boolean)
+    .filter((tag, index, list) => list.indexOf(tag) === index);
+}
+
+const defaultSectionTags: Record<string, string[]> = {
+  hero: ["hero"],
+  "location-interior": ["interni"],
+  "location-exterior": ["esterni", "giardino"],
+  "location-cuisine": ["allestimenti", "cucina"],
+  "events-ricorrenze": ["ricorrenze", "eventi"],
+  "events-momenti": ["momenti", "eventi"],
+  "opere-arte": ["arte", "dettagli"],
+};
+
+function tagsForSection(sectionKey: string): string[] {
+  if (defaultSectionTags[sectionKey]) {
+    return defaultSectionTags[sectionKey];
+  }
+  const section = siteSection.find((item) => item.key === sectionKey);
+  const labelTags = section ? normalizeTags(section.label.replace(/[^a-zA-Z0-9]+/g, ",")) : [];
+  return normalizeTags([sectionKey.replace(/-/g, ","), ...labelTags].join(","));
+}
+
 /* ─── Sortable thumbnail ─── */
 function SortableThumb({
   image,
@@ -182,6 +211,16 @@ function SortableThumb({
       {image.caption && (
         <div className="absolute bottom-1.5 left-1.5 right-12 opacity-0 group-hover:opacity-100 transition-opacity">
           <p className="text-white text-[10px] truncate bg-black/60 px-1.5 py-0.5 rounded">{image.caption}</p>
+        </div>
+      )}
+
+      {image.tags && image.tags.length > 0 && (
+        <div className="absolute top-1.5 right-1.5 flex max-w-[70%] flex-wrap justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          {image.tags.slice(0, 2).map((tag) => (
+            <span key={tag} className="text-[9px] uppercase tracking-wide bg-card/90 text-foreground px-1.5 py-0.5 rounded">
+              {tag}
+            </span>
+          ))}
         </div>
       )}
     </div>
@@ -344,6 +383,8 @@ export default function Gallery() {
   const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
   const [deletingImage, setDeletingImage] = useState<GalleryImage | null>(null);
   const [newCaption, setNewCaption] = useState("");
+  const [newCaptionEn, setNewCaptionEn] = useState("");
+  const [newTags, setNewTags] = useState("");
   const { toast } = useToast();
 
   const fetchImages = useCallback(async () => {
@@ -391,6 +432,7 @@ export default function Gallery() {
         file_path: filePath,
         file_name: file.name,
         section: sectionKey,
+        tags: tagsForSection(sectionKey),
         order_index: maxOrder,
       });
 
@@ -434,11 +476,17 @@ export default function Gallery() {
   const handleEdit = (img: GalleryImage) => {
     setEditingImage(img);
     setNewCaption(img.caption || "");
+    setNewCaptionEn(img.caption_en || "");
+    setNewTags((img.tags || tagsForSection(img.section)).join(", "));
   };
 
   const saveEdit = async () => {
     if (!editingImage) return;
-    const { error } = await supabase.from("gallery_images").update({ caption: newCaption }).eq("id", editingImage.id);
+    const { error } = await supabase.from("gallery_images").update({
+      caption: newCaption,
+      caption_en: newCaptionEn,
+      tags: normalizeTags(newTags),
+    }).eq("id", editingImage.id);
     if (error) {
       toast({ variant: "destructive", title: "Errore", description: "Impossibile salvare" });
     } else {
@@ -447,6 +495,8 @@ export default function Gallery() {
     }
     setEditingImage(null);
     setNewCaption("");
+    setNewCaptionEn("");
+    setNewTags("");
   };
 
   const handleDelete = async () => {
@@ -505,8 +555,19 @@ export default function Gallery() {
               <img src={imgUrl(editingImage.file_path)} alt={editingImage.caption || editingImage.file_name} className="w-full h-48 object-cover rounded-lg" />
             )}
             <div className="space-y-2">
-              <Label>Didascalia</Label>
-              <Input value={newCaption} onChange={(e) => setNewCaption(e.target.value)} placeholder="Inserisci una didascalia..." />
+              <Label>Didascalia IT</Label>
+              <Input value={newCaption} onChange={(e) => setNewCaption(e.target.value)} placeholder="Inserisci una didascalia in italiano..." />
+            </div>
+            <div className="space-y-2">
+              <Label>Didascalia EN</Label>
+              <Input value={newCaptionEn} onChange={(e) => setNewCaptionEn(e.target.value)} placeholder="English caption..." />
+            </div>
+            <div className="space-y-2">
+              <Label>Tag separati da virgola</Label>
+              <Input value={newTags} onChange={(e) => setNewTags(e.target.value)} placeholder="esterni, giardino, cerimonia" />
+              <p className="text-xs text-muted-foreground">
+                I tag creano le separazioni della galleria pubblica, in stile album.
+              </p>
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setEditingImage(null)}>Annulla</Button>
