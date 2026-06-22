@@ -17,7 +17,6 @@ export type Database = {
       gallery_images: {
         Row: {
           caption: string | null
-          caption_en: string | null
           created_at: string | null
           file_name: string
           file_path: string
@@ -25,13 +24,11 @@ export type Database = {
           id: string
           order_index: number
           section: string
-          tags: string[]
           updated_at: string | null
           width: number | null
         }
         Insert: {
           caption?: string | null
-          caption_en?: string | null
           created_at?: string | null
           file_name: string
           file_path: string
@@ -39,13 +36,11 @@ export type Database = {
           id?: string
           order_index?: number
           section?: string
-          tags?: string[]
           updated_at?: string | null
           width?: number | null
         }
         Update: {
           caption?: string | null
-          caption_en?: string | null
           created_at?: string | null
           file_name?: string
           file_path?: string
@@ -53,118 +48,10 @@ export type Database = {
           id?: string
           order_index?: number
           section?: string
-          tags?: string[]
           updated_at?: string | null
           width?: number | null
         }
         Relationships: []
-      }
-      social_connections: {
-        Row: {
-          access_token: string | null
-          account_id: string | null
-          account_name: string
-          auto_sync: boolean
-          created_at: string | null
-          id: string
-          is_enabled: boolean
-          last_sync_at: string | null
-          last_sync_error: string | null
-          provider: string
-          token_expires_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          access_token?: string | null
-          account_id?: string | null
-          account_name: string
-          auto_sync?: boolean
-          created_at?: string | null
-          id?: string
-          is_enabled?: boolean
-          last_sync_at?: string | null
-          last_sync_error?: string | null
-          provider: string
-          token_expires_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          access_token?: string | null
-          account_id?: string | null
-          account_name?: string
-          auto_sync?: boolean
-          created_at?: string | null
-          id?: string
-          is_enabled?: boolean
-          last_sync_at?: string | null
-          last_sync_error?: string | null
-          provider?: string
-          token_expires_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      social_posts: {
-        Row: {
-          caption: string | null
-          connection_id: string | null
-          created_at: string | null
-          id: string
-          is_visible: boolean
-          media_type: string | null
-          media_url: string | null
-          permalink: string
-          provider: string
-          provider_post_id: string
-          published_at: string | null
-          raw: Json
-          sort_index: number
-          thumbnail_url: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          caption?: string | null
-          connection_id?: string | null
-          created_at?: string | null
-          id?: string
-          is_visible?: boolean
-          media_type?: string | null
-          media_url?: string | null
-          permalink: string
-          provider: string
-          provider_post_id: string
-          published_at?: string | null
-          raw?: Json
-          sort_index?: number
-          thumbnail_url?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          caption?: string | null
-          connection_id?: string | null
-          created_at?: string | null
-          id?: string
-          is_visible?: boolean
-          media_type?: string | null
-          media_url?: string | null
-          permalink?: string
-          provider?: string
-          provider_post_id?: string
-          published_at?: string | null
-          raw?: Json
-          sort_index?: number
-          thumbnail_url?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "social_posts_connection_id_fkey"
-            columns: ["connection_id"]
-            isOneToOne: false
-            referencedRelation: "social_connections"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       smtp_config: {
         Row: {
