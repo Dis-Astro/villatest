@@ -1,6 +1,15 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { LogOut, Menu, X, Home } from "lucide-react";
+import {
+  Image,
+  Mail,
+  LogOut,
+  Menu,
+  X,
+  Home,
+  Share2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
@@ -9,9 +18,29 @@ interface AdminLayoutProps {
   children: ReactNode;
 }
 
+const navItems = [
+  { label: "Dashboard", icon: Home, href: "/" },
+  { label: "Galleria", icon: Image, href: "/gallery" },
+  { label: "Social", icon: Share2, href: "/social" },
+  { label: "Email SMTP", icon: Mail, href: "/smtp" },
+];
+
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { isAuthenticated, isLoading, logout } = useAuth();
+  const { user, isAdmin, isLoading, signOut } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, isLoading, navigate]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    window.location.href = "/";
+  };
 
   if (isLoading) {
     return (
@@ -21,14 +50,9 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!user) {
     return null;
   }
-
-  const handleSignOut = () => {
-    logout();
-    window.location.href = "/";
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -61,17 +85,36 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
 
         {/* Navigation */}
         <nav className="p-4 space-y-1">
-          <a
-            href="/"
-            className="flex items-center gap-3 px-4 py-3 rounded-md text-sm font-medium transition-colors bg-primary text-primary-foreground"
-          >
-            <Home size={18} />
-            Dashboard
-          </a>
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                to={item.href}
+                onClick={() => setIsSidebarOpen(false)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-md text-sm font-medium transition-colors ${
+                  isActive
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <item.icon size={18} />
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Footer */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border">
+          <div className="text-xs text-muted-foreground mb-3 truncate px-4">
+            {user.email}
+            {isAdmin && (
+              <span className="ml-2 text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
+                Admin
+              </span>
+            )}
+          </div>
           <div className="flex gap-2">
             <Button
               variant="ghost"

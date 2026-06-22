@@ -1,43 +1,73 @@
 import { useState, useEffect } from "react";
-import { z } from "zod";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Lock, Eye, EyeOff, ArrowLeft, Loader2, ShieldCheck } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowLeft, Loader2, Shield, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
 
 const authSchema = z.object({
-  password: z.string().min(1, "Inserisci la password"),
+  email: z.string().email("Email non valida"),
+  password: z.string().min(6, "La password deve avere almeno 6 caratteri"),
+});
+
+const passwordSchema = z.object({
+  password: z.string().min(6, "La password deve avere almeno 6 caratteri"),
 });
 
 export default function Auth() {
+  const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<{ password?: string }>({});
-
-  const { login, isLoading, isAuthenticated } = useAuth();
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [isPromoting, setIsPromoting] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+  const [isRecovery, setIsRecovery] = useState(() =>
+    window.location.hash.includes("type=recovery") || window.location.search.includes("type=recovery")
+  );
+  
+  const { signIn, signUp, user, isLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setIsRecovery(true);
+        setIsLogin(true);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading && user && !isRecovery) {
       navigate("/");
     }
-  }, [isAuthenticated, isLoading, navigate]);
+  }, [user, isLoading, isRecovery, navigate]);
 
   const validateForm = () => {
     try {
-      authSchema.parse({ password });
+      if (isRecovery) {
+        passwordSchema.parse({ password });
+      } else {
+        authSchema.parse({ email, password });
+      }
       setErrors({});
       return true;
     } catch (err) {
       if (err instanceof z.ZodError) {
-        const newErrors: { password?: string } = {};
+        const newErrors: { email?: string; password?: string } = {};
         err.errors.forEach((error) => {
+          if (error.path[0] === "email") newErrors.email = error.message;
           if (error.path[0] === "password") newErrors.password = error.message;
         });
         setErrors(newErrors);
@@ -46,27 +76,98 @@ export default function Auth() {
     }
   };
 
+  const handleResetPassword = async () => {
+    if (!email) {
+      toast({
+        variant: "destructive",
+        title: "Inserisci la tua email",
+        description: "Inserisci l'indirizzo email per ricevere il link di reset.",
+      });
+      return;
+    }
+
+    setIsResetting(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/admin/auth`,
+      });
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Errore",
+          description: error.message,
+        });
+      } else {
+        setResetSent(true);
+        toast({
+          title: "Email inviata",
+          description: "Controlla la tua casella di posta per il link di reset.",
+        });
+      }
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     if (!validateForm()) return;
 
     setIsSubmitting(true);
 
     try {
-      const { error } = await login(password);
-      if (error) {
-        toast({
-          variant: "destructive",
-          title: "Errore di accesso",
-          description: error.message,
-        });
+      if (isRecovery) {
+        const { error } = await supabase.auth.updateUser({ password });
+        if (error) {
+          toast({
+            variant: "destructive",
+            title: "Errore",
+            description: error.message,
+          });
+        } else {
+          toast({
+            title: "Password aggiornata",
+            description: "Ora puoi usare la nuova password per accedere.",
+          });
+          setIsRecovery(false);
+          setPassword("");
+          navigate("/");
+        }
+      } else if (isLogin) {
+        const { error } = await signIn(email, password);
+        if (error) {
+          toast({
+            variant: "destructive",
+            title: "Errore di accesso",
+            description: error.message === "Invalid login credentials" 
+              ? "Credenziali non valide" 
+              : error.message,
+          });
+        } else {
+          toast({
+            title: "Benvenuto!",
+            description: "Accesso effettuato con successo",
+          });
+          navigate("/");
+        }
       } else {
-        toast({
-          title: "Benvenuto!",
-          description: "Accesso effettuato con successo",
-        });
-        navigate("/");
+        const { error } = await signUp(email, password);
+        if (error) {
+          const errorMessage = error.message.includes("already registered")
+            ? "Questo indirizzo email è già registrato"
+            : error.message;
+          toast({
+            variant: "destructive",
+            title: "Errore di registrazione",
+            description: errorMessage,
+          });
+        } else {
+          toast({
+            title: "Registrazione completata",
+            description: "Controlla la tua email per confermare l'account",
+          });
+        }
       }
     } finally {
       setIsSubmitting(false);
@@ -89,6 +190,7 @@ export default function Auth() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
+        {/* Back button */}
         <Button
           variant="ghost"
           onClick={() => { window.location.href = "/"; }}
@@ -99,15 +201,48 @@ export default function Auth() {
         </Button>
 
         <div className="bg-card rounded-lg shadow-elegant p-8 border border-border">
+          {/* Header */}
           <div className="text-center mb-8">
             <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center mx-auto mb-4">
               <span className="text-primary-foreground font-display text-2xl">VP</span>
             </div>
-            <h1 className="font-display text-2xl text-foreground mb-2">Area Amministrazione</h1>
-            <p className="text-muted-foreground text-sm">Inserisci la password per accedere</p>
+            <h1 className="font-display text-2xl text-foreground mb-2">
+              {isRecovery ? "Nuova password" : isLogin ? "Accedi" : "Registrati"}
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              {isRecovery
+                ? "Imposta una nuova password per il tuo account"
+                : isLogin
+                ? "Accedi al pannello di amministrazione"
+                : "Crea un nuovo account amministratore"}
+            </p>
           </div>
 
+          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
+            {!isRecovery && (
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-foreground">
+                Email
+              </Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="admin@villaparis.it"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10"
+                  disabled={isSubmitting}
+                />
+              </div>
+              {errors.email && (
+                <p className="text-destructive text-sm">{errors.email}</p>
+              )}
+            </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="password" className="text-foreground">
                 Password
@@ -122,7 +257,6 @@ export default function Auth() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 pr-10"
                   disabled={isSubmitting}
-                  autoComplete="current-password"
                 />
                 <button
                   type="button"
@@ -145,22 +279,55 @@ export default function Auth() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Accesso in corso...
+                  {isRecovery ? "Aggiornamento..." : isLogin ? "Accesso in corso..." : "Registrazione in corso..."}
                 </>
-              ) : (
+              ) : isRecovery ? (
+                "Aggiorna password"
+              ) : isLogin ? (
                 "Accedi"
+              ) : (
+                "Registrati"
               )}
             </Button>
           </form>
 
-          <div className="mt-6 flex items-start gap-2 rounded-md bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
-            <ShieldCheck className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-            <p className="text-left">
-              Accesso protetto da password amministratore. Se non la ricordi, aggiorna
-              <code className="mx-1 rounded bg-background px-1 py-0.5">VITE_ADMIN_PASSWORD_HASH</code>
-              e ricostruisci il pannello.
-            </p>
+          {/* Forgot password */}
+          {isLogin && !isRecovery && !resetSent && (
+            <div className="mt-4 text-center">
+              <button
+                type="button"
+                onClick={handleResetPassword}
+                disabled={isResetting}
+                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                <KeyRound className="w-3.5 h-3.5" />
+                {isResetting ? "Invio in corso..." : "Password dimenticata?"}
+              </button>
+            </div>
+          )}
+
+          {resetSent && (
+            <div className="mt-4 p-3 bg-primary/10 border border-primary/20 rounded-md text-center">
+              <p className="text-sm text-primary font-medium">
+                Email di reset inviata! Controlla la tua casella di posta.
+              </p>
+            </div>
+          )}
+
+          {/* Toggle */}
+          {!isRecovery && (
+          <div className="mt-4 text-center">
+            <button
+              type="button"
+              onClick={() => { setIsLogin(!isLogin); setResetSent(false); }}
+              className="text-sm text-muted-foreground hover:text-primary transition-colors"
+            >
+              {isLogin
+                ? "Non hai un account? Registrati"
+                : "Hai già un account? Accedi"}
+            </button>
           </div>
+          )}
         </div>
       </motion.div>
     </div>
