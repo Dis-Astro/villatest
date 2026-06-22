@@ -1,120 +1,15 @@
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Image, Mail, Eye, Shield, Loader2, Share2 } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { Eye, Shield, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
-  const [imageCount, setImageCount] = useState(0);
-  const [hasSmtpConfig, setHasSmtpConfig] = useState(false);
-  const [socialPostCount, setSocialPostCount] = useState(0);
-  const [isPromoting, setIsPromoting] = useState(false);
-  const { user, isAdmin } = useAuth();
-  const { toast } = useToast();
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      // Count gallery images
-      const { count } = await supabase
-        .from("gallery_images")
-        .select("*", { count: "exact", head: true });
-
-      if (count !== null) {
-        setImageCount(count);
-      }
-
-      // Check SMTP config
-      const { data } = await supabase
-        .from("smtp_config")
-        .select("id")
-        .limit(1)
-        .maybeSingle();
-
-      setHasSmtpConfig(!!data);
-
-      const { count: postCount } = await supabase
-        .from("social_posts")
-        .select("*", { count: "exact", head: true })
-        .eq("is_visible", true);
-
-      if (postCount !== null) {
-        setSocialPostCount(postCount);
-      }
-    };
-
-    fetchStats();
-  }, []);
-
-  const handlePromoteToAdmin = async () => {
-    if (!user) return;
-
-    setIsPromoting(true);
-    try {
-      const { data, error } = await supabase.rpc("promote_to_admin", {
-        target_user_id: user.id,
-      });
-
-      if (error) throw error;
-
-      if (data) {
-        toast({
-          title: "Promozione completata",
-          description: "Ora sei un amministratore! Ricarica la pagina.",
-        });
-        window.location.reload();
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Non autorizzato",
-          description: "Solo il primo utente può auto-promuoversi",
-        });
-      }
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Errore",
-        description: error.message || "Impossibile promuovere ad admin",
-      });
-    } finally {
-      setIsPromoting(false);
-    }
-  };
-
-  const stats = [
-    {
-      title: "Immagini Galleria",
-      value: imageCount.toString(),
-      description: "Foto caricate",
-      icon: Image,
-      href: "/gallery",
-      color: "text-primary",
-    },
-    {
-      title: "Configurazione SMTP",
-      value: hasSmtpConfig ? "Configurato" : "Non configurato",
-      description: hasSmtpConfig ? "Email pronta" : "Da configurare",
-      icon: Mail,
-      href: "/smtp",
-      color: hasSmtpConfig ? "text-primary" : "text-accent",
-    },
-    {
-      title: "Post Social",
-      value: socialPostCount.toString(),
-      description: "Visibili sul sito",
-      icon: Share2,
-      href: "/social",
-      color: socialPostCount > 0 ? "text-primary" : "text-accent",
-    },
-  ];
+  const { logout } = useAuth();
 
   return (
     <AdminLayout>
       <div className="space-y-8">
-        {/* Header */}
         <div>
           <h1 className="font-display text-3xl text-foreground">Dashboard</h1>
           <p className="text-muted-foreground mt-1">
@@ -122,66 +17,8 @@ export default function Dashboard() {
           </p>
         </div>
 
-        {/* Admin Promotion Banner */}
-        {!isAdmin && (
-          <Card className="border-accent/50 bg-accent/5">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-accent">
-                <Shield className="h-5 w-5" />
-                Diventa Amministratore
-              </CardTitle>
-              <CardDescription>
-                Se sei il primo utente a registrarti, puoi promuoverti automaticamente ad amministratore
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button
-                onClick={handlePromoteToAdmin}
-                disabled={isPromoting}
-                className="bg-accent hover:bg-accent/90"
-              >
-                {isPromoting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Promozione in corso...
-                  </>
-                ) : (
-                  <>
-                    <Shield className="w-4 h-4 mr-2" />
-                    Promuovimi ad Admin
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Stats Grid */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {stats.map((stat) => (
-            <Link key={stat.title} to={stat.href}>
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    {stat.title}
-                  </CardTitle>
-                  <stat.icon
-                    className={`h-5 w-5 ${stat.color} group-hover:scale-110 transition-transform`}
-                  />
-                </CardHeader>
-                <CardContent>
-                  <div className={`text-2xl font-display ${stat.color}`}>
-                    {stat.value}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {stat.description}
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-
-          {/* Quick Actions */}
+        {/* Quick Actions */}
+        <div className="grid gap-6 md:grid-cols-2">
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
@@ -198,24 +35,27 @@ export default function Dashboard() {
               >
                 → Visualizza il sito
               </a>
-              <Link
-                to="/gallery"
+              <a
+                href="/admin"
                 className="block text-sm text-primary hover:underline"
               >
-                → Gestisci galleria
-              </Link>
-              <Link
-                to="/social"
-                className="block text-sm text-primary hover:underline"
-              >
-                → Gestisci social
-              </Link>
-              <Link
-                to="/smtp"
-                className="block text-sm text-primary hover:underline"
-              >
-                → Configura email
-              </Link>
+                → Ricarica admin panel
+              </a>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <Shield className="h-5 w-5 text-primary" />
+                Amministrazione
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button variant="outline" size="sm" onClick={logout} className="w-full">
+                <LogOut className="w-4 h-4 mr-2" />
+                Esci
+              </Button>
             </CardContent>
           </Card>
         </div>
@@ -227,18 +67,20 @@ export default function Dashboard() {
               Gestione Villa Paris
             </CardTitle>
             <CardDescription>
-              Da qui puoi gestire le immagini del sito pubblico e configurare l'invio email dal form contatti.
+              Pannello di amministrazione locale per Villa Paris.
             </CardDescription>
           </CardHeader>
           <CardContent className="prose prose-sm max-w-none text-muted-foreground">
             <p>
-              <strong>Galleria Foto:</strong> Carica nuove immagini per sezione (hero, location, eventi),
-              riordinale con drag &amp; drop e modifica didascalie. Le immagini vengono mostrate
-              automaticamente nel sito pubblico.
+              <strong>Galleria Foto:</strong> Le immagini del sito sono gestite
+              tramite file statici in <code>/public/images/</code>. Per aggiornare
+              la galleria, carica i file WebP nelle cartelle corrispondenti e
+              aggiorna i dati in <code>/src/content/gallery.ts</code>.
             </p>
             <p>
-              <strong>Configurazione SMTP:</strong> Imposta il server email per
-              ricevere i messaggi dal form contatti del sito.
+              <strong>Email:</strong> Il form contatti utilizza Supabase Edge
+              Function. Per configurare l'invio email, aggiorna la configurazione
+              SMTP su Supabase Dashboard.
             </p>
           </CardContent>
         </Card>
