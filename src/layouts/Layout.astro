@@ -3,6 +3,8 @@ import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import { getAlternateUrl, normalizeRoutePath } from '@/content/settings';
 import '../styles/global.css';
+import { createHash } from 'node:crypto';
+import dynamicImagesSource from '../../public/js/dynamic-images.js?raw';
 
 export interface Props {
   title: string;
@@ -23,6 +25,13 @@ const {
 } = Astro.props;
 
 const currentPath = normalizeRoutePath(Astro.url.pathname);
+const heroSections: Record<string, string> = {
+  '/': 'hero', '/en': 'hero',
+  '/galleria': 'hero', '/en/gallery': 'hero',
+  '/matrimoni': 'events-ricorrenze', '/en/weddings': 'events-ricorrenze'
+};
+const dynamicHeroSection = heroSections[currentPath];
+const dynamicImagesVersion = createHash('sha256').update(dynamicImagesSource).digest('hex').slice(0, 12);
 
 const canonicalUrl = canonical
   ? `https://villaparis.rosetoabruzzo.it${canonical}`
@@ -77,7 +86,7 @@ const breadcrumbLd = isSubPage ? {
 ---
 
 <!DOCTYPE html>
-<html lang={locale}>
+<html lang={locale} data-dynamic-hero-section={dynamicHeroSection}>
 <head>
   <!-- Google Tag Manager -->
   <script is:inline>
@@ -122,6 +131,9 @@ const breadcrumbLd = isSubPage ? {
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  {dynamicHeroSection && <link rel="preconnect" href="https://jalalwlaxtsejvzwuvvk.supabase.co" crossorigin />}
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Lato:wght@300;400;500;700&display=swap" />
+  {dynamicHeroSection && <script src={`/js/dynamic-images.js?v=${dynamicImagesVersion}`} async is:inline></script>}
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
   <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
@@ -138,7 +150,6 @@ const breadcrumbLd = isSubPage ? {
     </main>
     <Footer locale={locale} />
   </div>
-  <script src="/js/dynamic-images.js" defer is:inline></script>
   <script src="/js/social-feed.js" defer is:inline></script>
 </body>
 </html>

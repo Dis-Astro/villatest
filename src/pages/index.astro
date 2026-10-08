@@ -180,7 +180,7 @@ const gallerySection = p.sections?.find(s => s.type === 'gallery');
           <p class="text-muted-foreground font-body max-w-2xl mx-auto">{gallerySection.description}</p>
         </div>
         <!-- Griglia statica di fallback, sostituita dinamicamente se ci sono immagini admin -->
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-5xl mx-auto" data-dynamic-gallery="hero,location-interior,location-exterior,location-cuisine,events-ricorrenze,events-momenti">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-5xl mx-auto" data-gallery-limit="6" data-dynamic-gallery="hero,location-interior,location-exterior,location-cuisine,events-ricorrenze,events-momenti">
           {gallerySection.images?.slice(0, 6).map((img, i) => (
             <div class="location-card group rounded-sm overflow-hidden aspect-square">
               <img

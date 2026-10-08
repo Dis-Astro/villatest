@@ -10,6 +10,70 @@
   var SUPABASE_URL = 'https://jalalwlaxtsejvzwuvvk.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphbGFsd2xheHRzZWp2end1dnZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMDI0NjQsImV4cCI6MjA4NTc3ODQ2NH0.hFCHMQdlckaDW6ON9ZEnyA6kbF-lhTb48Tq6duiVXeg';
   var STORAGE_BASE = SUPABASE_URL + '/storage/v1/object/public/venue-photos/';
+  var imageLoads = new Map();
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var nearbyTasks = new WeakMap();
+  var nearbyObserver = 'IntersectionObserver' in window ? new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      nearbyObserver.unobserve(entry.target);
+      var task = nearbyTasks.get(entry.target);
+      nearbyTasks.delete(entry.target);
+      if (task) task();
+    });
+  }, { rootMargin: '400px' }) : null;
+
+  function whenNearby(el, task) {
+    var rect = el.getBoundingClientRect();
+    if (!nearbyObserver || (rect.top < window.innerHeight + 400 && rect.bottom > -400)) {
+      task();
+    } else {
+      nearbyTasks.set(el, task);
+      nearbyObserver.observe(el);
+    }
+  }
+
+  // Keep the current image visible until the replacement is downloaded and decoded.
+  // Share downloads across the hero, cards and gallery without caching admin metadata.
+  function loadImage(url, priority) {
+    if (imageLoads.has(url)) {
+      var cached = imageLoads.get(url);
+      imageLoads.delete(url);
+      imageLoads.set(url, cached);
+      return cached;
+    }
+    var promise = new Promise(function (resolve, reject) {
+      var image = new Image();
+      image.decoding = 'async';
+      image.fetchPriority = priority || 'low';
+      var timer = setTimeout(function () { finish(new Error('Image timeout')); }, 15000);
+      function finish(error) {
+        clearTimeout(timer);
+        image.onload = image.onerror = null;
+        if (error) reject(error);
+        else resolve(image);
+      }
+      image.onload = function () {
+        if (image.decode) image.decode().then(function () { finish(); }, finish);
+        else finish();
+      };
+      image.onerror = function () { finish(new Error('Image unavailable')); };
+      image.src = url;
+    });
+    imageLoads.set(url, promise);
+    // Avoid retaining decoded originals for the entire gallery on mobile.
+    if (imageLoads.size > 16) imageLoads.delete(imageLoads.keys().next().value);
+    promise.catch(function () {
+      if (imageLoads.get(url) === promise) imageLoads.delete(url);
+    });
+    return promise;
+  }
+
+  function revealImage(image) {
+    if (!reducedMotion.matches && image.animate) {
+      image.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 450, easing: 'ease-out' });
+    }
+  }
 
   function imgUrl(filePath) {
     return STORAGE_BASE + filePath;
@@ -121,8 +185,14 @@
   }
 
   function fetchImages() {
+    // Some deployed databases do not yet have caption_en or tags. Selecting all
+    // existing columns preserves compatibility with both schema versions.
     var url = SUPABASE_URL + '/rest/v1/gallery_images?select=*&order=order_index.asc';
+    var controller = new AbortController();
+    var timer = setTimeout(function () { controller.abort(); }, 8000);
     return fetch(url, {
+      signal: controller.signal,
+      cache: 'no-store',
       headers: {
         apikey: SUPABASE_ANON_KEY,
         Authorization: 'Bearer ' + SUPABASE_ANON_KEY
@@ -132,9 +202,14 @@
         if (!res.ok) throw new Error('HTTP ' + res.status);
         return res.json();
       })
+      .then(function (images) {
+        return Array.isArray(images) ? images.filter(function (img) {
+          return img && typeof img.file_path === 'string' && img.file_path.length;
+        }) : [];
+      })
       .catch(function () {
         return [];
-      });
+      }).finally(function () { clearTimeout(timer); });
   }
 
   function bySection(images, section) {
@@ -146,9 +221,29 @@
     var img = sectionImages[0];
     var locale = document.documentElement.lang || 'it';
     var caption = captionForLocale(img, locale);
-    el.src = imgUrl(img.file_path);
-    el.alt = caption;
-    el.removeAttribute('data-dynamic-img');
+    whenNearby(el, function () {
+      loadImage(imgUrl(img.file_path)).then(function (loaded) {
+        if (!el.isConnected) return;
+        var previous = null;
+        if (el.complete && el.naturalWidth && !reducedMotion.matches && el.animate) {
+          previous = el.cloneNode(false);
+          previous.removeAttribute('data-dynamic-img');
+          previous.removeAttribute('id');
+          previous.alt = '';
+          previous.setAttribute('aria-hidden', 'true');
+          previous.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;';
+          if (getComputedStyle(el.parentNode).position === 'static') el.parentNode.style.position = 'relative';
+          el.parentNode.insertBefore(previous, el.nextSibling);
+        }
+        el.src = loaded.src;
+        el.alt = caption;
+        el.removeAttribute('data-dynamic-img');
+        if (previous) {
+          var fade = previous.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 450, fill: 'forwards' });
+          fade.onfinish = function () { previous.remove(); };
+        }
+      }).catch(function () { /* Retain the static fallback on error. */ });
+    });
   }
 
   function replaceGalleryGrid(container, allImages) {
@@ -172,6 +267,9 @@
       .filter(function (img) { return matchesGalleryTag(img, currentTag); })
       .sort(function (a, b) { return (a.order_index || 0) - (b.order_index || 0); });
 
+    var limit = parseInt(container.getAttribute('data-gallery-limit'), 10);
+    if (limit > 0) images = images.slice(0, limit);
+
     if (!images.length) return;
 
     var html = '';
@@ -180,8 +278,8 @@
       var tags = imageTags(img).slice(0, 3);
 
       html += '<div class="location-card group rounded-sm overflow-hidden bg-muted aspect-square" data-gallery-item data-gallery-tags="' + escapeHtml(imageTags(img).join(',')) + '">' +
-        '<img src="' + escapeHtml(imgUrl(img.file_path)) + '" alt="' + escapeHtml(caption) + '" ' +
-        'class="w-full h-full object-cover" loading="lazy" />' +
+        '<img data-image-src="' + escapeHtml(imgUrl(img.file_path)) + '" alt="' + escapeHtml(caption) + '" ' +
+        'class="w-full h-full object-cover" decoding="async" width="800" height="800" />' +
         '<div class="location-card-overlay flex items-end p-5">' +
         '<div>' +
         '<p class="text-white text-sm font-body font-medium mb-2">' + escapeHtml(caption) + '</p>' +
@@ -196,7 +294,46 @@
       html += '</div></div></div></div>';
     });
 
-    container.innerHTML = html;
+    // Replace each square only when its new image is ready. Preserve existing
+    // squares during slow or failed downloads instead of clearing the whole grid.
+    var staging = document.createElement('div');
+    staging.innerHTML = html;
+    var oldItems = Array.prototype.slice.call(container.children);
+    Array.prototype.slice.call(staging.children).forEach(function (card, index) {
+      var target = oldItems[index];
+      var image = card.querySelector('img');
+      if (!target) {
+        target = document.createElement('div');
+        target.className = 'rounded-sm overflow-hidden bg-muted aspect-square';
+        container.appendChild(target);
+      }
+      whenNearby(target, function () {
+        loadImage(image.getAttribute('data-image-src')).then(function (loaded) {
+          if (!target.isConnected) return;
+          var ready = loaded.cloneNode(false);
+          ready.className = image.className;
+          ready.alt = image.alt;
+          ready.width = 800;
+          ready.height = 800;
+          image.replaceWith(ready);
+          var previous = target.querySelector('img');
+          if (previous && previous.complete && previous.naturalWidth && !reducedMotion.matches) {
+            previous = previous.cloneNode(false);
+            previous.alt = '';
+            previous.removeAttribute('id');
+            previous.setAttribute('aria-hidden', 'true');
+            previous.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
+            card.insertBefore(previous, ready);
+            ready.style.position = 'relative';
+            setTimeout(function () { previous.remove(); }, 500);
+          }
+          card.style.cursor = 'zoom-in';
+          target.replaceWith(card);
+          revealImage(ready);
+        }).catch(function () { /* Retain the corresponding fallback square. */ });
+      });
+    });
+    oldItems.slice(images.length).forEach(function (item) { item.remove(); });
   }
 
   function galleryCountLabel(count, locale) {
@@ -415,43 +552,56 @@
 
   function replaceHeroSlider(container, sectionImages) {
     if (!sectionImages.length) return;
-
-    if (sectionImages.length === 1) {
-      var heroImg = container.querySelector('img');
-      if (heroImg) {
-        heroImg.src = imgUrl(sectionImages[0].file_path);
-        heroImg.alt = captionForLocale(sectionImages[0], document.documentElement.lang || 'it');
-      }
-      return;
-    }
-
     var imgContainer = container.querySelector('[data-hero-images]') || container;
     var existingImg = imgContainer.querySelector('img');
     if (!existingImg) return;
-
     var wrapper = document.createElement('div');
     wrapper.style.cssText = 'position:absolute;inset:0;';
-
-    sectionImages.forEach(function (img, i) {
-      var el = document.createElement('img');
-      el.src = imgUrl(img.file_path);
-      el.alt = captionForLocale(img, document.documentElement.lang || 'it');
-      el.className = 'w-full h-full object-cover';
-      el.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity 1.5s ease;opacity:' + (i === 0 ? '1' : '0') + ';';
-      el.setAttribute('data-slide-index', String(i));
-      wrapper.appendChild(el);
-    });
-
-    existingImg.parentNode.insertBefore(wrapper, existingImg);
-    existingImg.style.display = 'none';
-
+    existingImg.parentNode.insertBefore(wrapper, existingImg.nextSibling);
     var current = 0;
-    var slides = wrapper.querySelectorAll('img');
-    setInterval(function () {
-      slides[current].style.opacity = '0';
-      current = (current + 1) % slides.length;
-      slides[current].style.opacity = '1';
-    }, 5000);
+    var timer;
+    var stopped = false;
+    var active;
+
+    function show(index, priority) {
+      return loadImage(imgUrl(sectionImages[index].file_path), priority).then(function (loaded) {
+        if (stopped || !container.isConnected) return;
+        var next = loaded.cloneNode(false);
+        next.alt = captionForLocale(sectionImages[index], document.documentElement.lang || 'it');
+        next.className = 'w-full h-full object-cover';
+        next.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
+        next.setAttribute('data-slide-index', String(index));
+        var previous = active;
+        wrapper.appendChild(next);
+        active = next;
+        current = index;
+        revealImage(next);
+        if (previous) setTimeout(function () { previous.remove(); }, 500);
+      });
+    }
+
+    function schedule() {
+      clearTimeout(timer);
+      if (stopped || sectionImages.length < 2 || reducedMotion.matches || document.hidden) return;
+      var nextIndex = (current + 1) % sectionImages.length;
+      // Only the next slide is prefetched; the rest do not compete with the hero.
+      loadImage(imgUrl(sectionImages[nextIndex].file_path)).catch(function () {});
+      timer = setTimeout(function () {
+        show(nextIndex).catch(function () {
+          // Skip a broken slide, retaining the currently visible image.
+          current = nextIndex;
+        }).then(schedule);
+      }, 5000);
+    }
+
+    document.addEventListener('visibilitychange', schedule);
+    reducedMotion.addEventListener('change', schedule);
+    window.addEventListener('pagehide', function () { stopped = true; clearTimeout(timer); });
+    window.addEventListener('pageshow', function () { stopped = false; if (active) schedule(); });
+    show(0, 'high').then(schedule).catch(function () {
+      // A broken first upload must not prevent a later valid slide from displaying.
+      schedule();
+    });
   }
 
   function replaceLocationCards(allImages) {
@@ -466,7 +616,7 @@
   function init() {
     applyStaticGalleryState();
 
-    fetchImages().then(function (allImages) {
+    imagesRequest.then(function (allImages) {
       if (!allImages.length) return;
 
       document.querySelectorAll('[data-dynamic-slider]').forEach(function (container) {
@@ -483,6 +633,15 @@
       enableGalleryLightbox();
     });
   }
+
+  // The async head script starts this request before DOMContentLoaded. Preload
+  // the first hero as soon as metadata arrives, even while HTML is still parsing.
+  var imagesRequest = fetchImages();
+  imagesRequest.then(function (images) {
+    var section = document.documentElement.getAttribute('data-dynamic-hero-section');
+    var hero = bySection(images, section)[0];
+    if (hero) loadImage(imgUrl(hero.file_path), 'high').catch(function () {});
+  });
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
