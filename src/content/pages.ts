@@ -28,7 +28,7 @@ export const pages: Record<string, Record<'it' | 'en', PageContent>> = {
     it: {
       hero: {
         title: 'Villa Paris',
-        subtitle: 'Location Esclusiva per Matrimoni',
+        subtitle: "EVENTI D'AUTORE",
         description: 'Una cornice elegante e raffinata a Roseto degli Abruzzi per celebrare il tuo giorno più speciale.',
         image: '/images/hero/home-hero.webp',
         cta: {
@@ -72,7 +72,7 @@ export const pages: Record<string, Record<'it' | 'en', PageContent>> = {
     en: {
       hero: {
         title: 'Villa Paris',
-        subtitle: 'Exclusive Wedding Venue',
+        subtitle: "EVENTI D'AUTORE",
         description: 'An elegant and refined setting in Roseto degli Abruzzi to celebrate your most special day.',
         image: '/images/hero/home-hero.webp',
         cta: {
