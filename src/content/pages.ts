@@ -72,7 +72,7 @@ export const pages: Record<string, Record<'it' | 'en', PageContent>> = {
     en: {
       hero: {
         title: 'Villa Paris',
-        subtitle: "EVENTI D'AUTORE",
+        subtitle: 'SIGNATURE EVENTS',
         description: 'An elegant and refined setting in Roseto degli Abruzzi to celebrate your most special day.',
         image: '/images/hero/home-hero.webp',
         cta: {
